@@ -1,0 +1,116 @@
+import type { Profile } from "@/lib/profile/types";
+
+/**
+ * FICTIONAL sample profiles for the design preview only. They are never
+ * written to the database, have no photos, and every screen that shows them
+ * carries a "Design preview — sample data" banner.
+ */
+const base: Omit<Profile, "id" | "full_name"> = {
+  cohort: "Sample cohort",
+  role_title: null,
+  background: null,
+  years_experience: null,
+  career_objective: null,
+  career_objective_detail: null,
+  intro: null,
+  strengths: [],
+  strengths_good_at: null,
+  strengths_problems: null,
+  strengths_example: null,
+  development_areas: [],
+  development_current: null,
+  development_complement: null,
+  development_help: null,
+  industries_experience: [],
+  industries_experience_detail: null,
+  industries_interest: [],
+  questionnaire: {},
+  partner_skills: [],
+  partner_industries: [],
+  partner_qualities: [],
+  partner_success: null,
+  photo_path: null,
+  photo_confirmed: true,
+  photo_updated_at: null,
+  details_confirmed: true,
+  visibility_acknowledged: true,
+  onboarding_step: 8,
+  status: "published",
+  published_at: null,
+  version: 1,
+  created_at: "2026-10-01T00:00:00Z",
+  updated_at: "2026-10-01T00:00:00Z",
+};
+
+export const SAMPLE_ME: Profile = {
+  ...base,
+  id: "00000000-0000-4000-8000-000000000001",
+  full_name: "Sample Student A",
+  role_title: "Brand marketing associate",
+  years_experience: 2,
+  background: "Sample background text for the design preview.",
+  career_objective: "marketing_brand",
+  intro: "Sample introduction used to preview layout and typography.",
+  strengths: ["Marketing", "Research", "Communication"],
+  strengths_good_at: "Sample text.",
+  development_areas: ["Finance", "Data analytics"],
+  development_current: "Sample text.",
+  industries_experience: ["Consumer brands and FMCG"],
+  industries_interest: ["Consumer technology", "Fintech and financial services"],
+  partner_skills: ["Finance", "Data analytics"],
+  partner_qualities: ["Reliable", "Organised"],
+  questionnaire: {
+    answers: {
+      working_style: "exploratory", decision_making: ["discussion"], communication: "adaptive", ownership: "mixed",
+      ambiguity: "energised", conflict: "address_directly", feedback: ["direct_immediate"], execution: "iterate_quickly",
+      pressure: ["frequent_syncs"], expectations: ["challenge_ideas", "learning_together"],
+    },
+  },
+};
+
+export const SAMPLE_CANDIDATES: Profile[] = [
+  {
+    ...base,
+    id: "00000000-0000-4000-8000-000000000002",
+    full_name: "Sample Student B",
+    role_title: "Financial analyst",
+    years_experience: 3,
+    background: "Sample background text for the design preview.",
+    career_objective: "finance_investing",
+    intro:
+      "Sample introduction. This paragraph exists to check how two or three lines of real-length text sit on the card's glass panel at narrow widths.",
+    strengths: ["Finance", "Data analytics", "Problem solving"],
+    strengths_good_at: "Sample text describing a strength.",
+    strengths_example: "Sample example text.",
+    development_areas: ["Marketing", "Communication"],
+    development_current: "Sample text describing a development area.",
+    industries_experience: ["Fintech and financial services"],
+    industries_interest: ["Consumer technology", "Climate and sustainability"],
+    partner_skills: ["Marketing", "Research"],
+    partner_qualities: ["Curious", "Proactive communicator"],
+    partner_success: "Sample text.",
+    questionnaire: {
+      answers: {
+        working_style: "structured", decision_making: ["data"], communication: "direct", ownership: "independent",
+        ambiguity: "prefer_clarity", conflict: "reflect_first", feedback: ["scheduled_checkins", "written"], execution: "plan_ahead",
+        pressure: ["clear_priorities", "structured_timeline"], expectations: ["reliability", "high_standards"],
+      },
+      notes: { working_style: "Sample note." },
+    },
+  },
+  {
+    ...base,
+    id: "00000000-0000-4000-8000-000000000003",
+    full_name: "Sample Student C",
+    role_title: "Product operations",
+    years_experience: 1.5,
+    career_objective: "product",
+    intro: "Short sample introduction.",
+    strengths: ["Operations", "Project management"],
+    development_areas: ["Strategy"],
+    industries_experience: ["E-commerce"],
+    industries_interest: ["Consumer technology"],
+    partner_skills: ["Strategy"],
+    questionnaire: { answers: { working_style: "balanced", communication: "adaptive", ownership: "mixed", conflict: "find_common_ground", feedback: ["direct_immediate"], execution: "depends" } },
+  },
+];

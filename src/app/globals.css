@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+/*
+ * BSL Connect design tokens.
+ * Forest green is the dominant brand colour; sage and ivory add warmth and
+ * hierarchy and are used sparingly. Glass surfaces are reserved for floating
+ * chrome (navigation, controls, overlays on photographs) — content sits on
+ * solid surfaces for readability.
+ */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-instrument), ui-serif, Georgia, serif;
+
+  --color-forest-950: #071a14;
+  --color-forest-900: #0b241d;
+  --color-forest-800: #12372d;
+  --color-forest-700: #204a3b;
+  --color-forest-600: #2f5f4d;
+  --color-forest-500: #46775f;
+  --color-sage-400: #9fb79a;
+  --color-sage-300: #b9cbb4;
+  --color-sage-200: #d4e0d0;
+  --color-sage-100: #e8efe5;
+  --color-ivory-50: #fbfaf6;
+  --color-ivory-100: #f6f4ed;
+  --color-ivory-200: #ece8dc;
+  --color-ink: #15211c;
+  --color-ink-muted: #56645d;
+  --color-ink-subtle: #7a867f;
+  --color-line: rgb(18 55 45 / 0.1);
+  --color-line-strong: rgb(18 55 45 / 0.18);
+  --color-danger: #a23b2c;
+  --color-danger-soft: #f7e7e3;
+  --color-amber: #8a5a0b;
+  --color-amber-soft: #f6eedb;
+
+  --color-glass-light: rgb(255 255 255 / 0.72);
+  --color-glass-dark: rgb(18 55 45 / 0.58);
+
+  --radius-card: 1.75rem;
+  --radius-panel: 1.25rem;
+
+  --shadow-soft: 0 1px 2px rgb(11 36 29 / 0.04), 0 8px 24px -12px rgb(11 36 29 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(11 36 29 / 0.05), 0 24px 48px -20px rgb(11 36 29 / 0.32);
+  --shadow-float: 0 1px 1px rgb(11 36 29 / 0.04), 0 12px 32px -8px rgb(11 36 29 / 0.24);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-rise: rise 420ms var(--ease-out-soft) both;
+  --animate-fade: fade 280ms ease-out both;
+  --animate-sheet: sheet-up 380ms var(--ease-out-soft) both;
+  --animate-pop: pop 520ms var(--ease-out-soft) both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes sheet-up {
+    from { opacity: 0.4; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop {
+    0% { opacity: 0; transform: scale(0.94); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+}
+
+:root {
+  color-scheme: light;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-height: 4.25rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-ivory-100);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  /* Environmental light: two very soft washes, fixed behind content. */
+  background-image:
+    radial-gradient(60rem 40rem at 110% -10%, rgb(185 203 180 / 0.35), transparent 60%),
+    radial-gradient(50rem 36rem at -20% 110%, rgb(32 74 59 / 0.08), transparent 60%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+@layer base {
+  ::selection {
+    background: var(--color-sage-300);
+    color: var(--color-forest-900);
+  }
+
+  /* In the base layer so utilities such as outline-none can override it. */
+  :focus-visible {
+    outline: 2px solid var(--color-forest-600);
+    outline-offset: 2px;
+  }
+}
+
+@utility glass {
+  background-color: var(--color-glass-light);
+  -webkit-backdrop-filter: saturate(160%) blur(20px);
+  backdrop-filter: saturate(160%) blur(20px);
+  border: 1px solid rgb(255 255 255 / 0.6);
+}
+
+@utility glass-dark {
+  background-color: var(--color-glass-dark);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  backdrop-filter: saturate(140%) blur(18px);
+  border: 1px solid rgb(255 255 255 / 0.14);
+}
+
+@utility surface {
+  background-color: var(--color-ivory-50);
+  border: 1px solid var(--color-line);
+}
+
+@utility pb-nav {
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 1.5rem);
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* Native dialog used for sheets and modals. */
+dialog::backdrop {
+  background: rgb(7 26 20 / 0.42);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

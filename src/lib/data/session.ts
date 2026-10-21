@@ -47,8 +47,9 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   const db = userDb(session.user_id);
   const status = await db.rpc<MyStatus>("my_status");
   if (!status?.role) return null;
-  // A student account must still match the student domain.
-  if (status.role === "student" && !isAllowedStudentEmail(session.email)) return null;
+  // A student account must match the student domain.
+  // (Allowlisted team addresses that also participate are student + admin and are exempt.)
+  if (status.role === "student" && !status.is_admin && !isAllowedStudentEmail(session.email)) return null;
 
   return { id: session.user_id, email: session.email, status, db };
 });

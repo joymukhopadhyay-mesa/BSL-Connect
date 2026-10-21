@@ -8,8 +8,9 @@ import pg from "pg";
 
 const email = process.argv[2];
 const revoke = process.argv.includes("--revoke");
+const participate = process.argv.includes("--participate");
 if (!email || !email.includes("@")) {
-  console.error("Usage: npm run admin:grant -- <email> [--revoke]");
+  console.error("Usage: npm run admin:grant -- <email> [--participate] [--revoke]");
   process.exit(1);
 }
 const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
@@ -20,8 +21,8 @@ if (!url) {
 const client = new pg.Client({ connectionString: url });
 await client.connect();
 try {
-  const fn = revoke ? "private.revoke_admin($1)" : "private.provision_admin($1, 'provisioned via script')";
-  const { rows } = await client.query(`select ${fn} as result`, [email.trim().toLowerCase()]);
+  const fn = revoke ? "private.revoke_admin($1)" : "private.provision_admin($1, 'provisioned via script', $2)";
+  const { rows } = await client.query(`select ${fn} as result`, revoke ? [email.trim().toLowerCase()] : [email.trim().toLowerCase(), participate]);
   console.log(`${email}: ${rows[0].result}`);
 } finally {
   await client.end();

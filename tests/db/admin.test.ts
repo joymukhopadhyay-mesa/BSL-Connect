@@ -285,3 +285,57 @@ describe("admins who also participate as students", () => {
     expect(await errorCode(callAdmin(sa, "admin_overview", []))).toContain("FORBIDDEN");
   });
 });
+
+describe("team addresses that also participate as students", () => {
+  const team = () => `team.${Date.now()}.${Math.floor(Math.random() * 1e6)}@mesaschool.co`;
+
+  it("an allowlisted team address flagged to participate becomes admin + student with a profile", async () => {
+    const email = team();
+    expect(await db.query<{ r: string }>("select private.provision_admin($1, 'shared mailbox', true) as r", [email])
+      .then((r) => r.rows[0]!.r)).toContain("admin + student");
+    const id = await createUser(db, { email });
+    const role = await db.query<{ role: string; is_admin: boolean }>("select role, is_admin from public.user_roles where user_id = $1", [id]);
+    expect(role.rows[0]).toEqual({ role: "student", is_admin: true });
+    expect((await db.query("select 1 from public.profiles where id = $1", [id])).rows).toHaveLength(1);
+    const status = await rpc<{ role: string; is_admin: boolean }>(db, id, "my_status");
+    expect(status).toMatchObject({ role: "student", is_admin: true });
+    await expect(callAdmin(id, "admin_overview", [])).resolves.toBeDefined();
+  });
+
+  it("without the flag, a team address stays admin-only with no profile", async () => {
+    const email = team();
+    await db.query("select private.provision_admin($1)", [email]);
+    const id = await createUser(db, { email });
+    const role = await db.query<{ role: string }>("select role from public.user_roles where user_id = $1", [id]);
+    expect(role.rows[0]?.role).toBe("admin");
+    expect((await db.query("select 1 from public.profiles where id = $1", [id])).rows).toHaveLength(0);
+  });
+
+  it("promoting an existing admin-only account to participate creates the profile", async () => {
+    const email = team();
+    await db.query("select private.provision_admin($1)", [email]);
+    const id = await createUser(db, { email });
+    await db.query("select private.provision_admin($1, null, true)", [email]);
+    const role = await db.query<{ role: string; is_admin: boolean }>("select role, is_admin from public.user_roles where user_id = $1", [id]);
+    expect(role.rows[0]).toEqual({ role: "student", is_admin: true });
+    expect((await db.query("select 1 from public.profiles where id = $1", [id])).rows).toHaveLength(1);
+  });
+
+  it("nobody outside the student domain can get a student account without the owner's allowlist", async () => {
+    expect(await errorCode(createUser(db, { email: team() }))).toContain("EMAIL_DOMAIN_NOT_ALLOWED");
+    // The flag is not writable through the API.
+    const student = await createStudent(db);
+    expect(await errorCode(asUser(db, student, () => db.query("update public.staff_allowlist set participates = true")))).toMatch(/permission denied/);
+    expect(await errorCode(asUser(db, student, () => db.query("select private.provision_admin('x@mesaschool.co', null, true)")))).toMatch(/permission denied/);
+  });
+
+  it("the same self-moderation limits apply, and revoking removes access", async () => {
+    const email = team();
+    await db.query("select private.provision_admin($1, null, true)", [email]);
+    const id = await createUser(db, { email });
+    expect(await errorCode(rpc(db, id, "admin_set_suspension", [id, true, "self"]))).toContain("SELF_MODERATION");
+    await db.query("select private.revoke_admin($1)", [email]);
+    expect((await db.query("select 1 from public.user_roles where user_id = $1", [id])).rows).toHaveLength(0);
+    expect((await db.query<{ r: { status: string } }>("select auth.request_otp($1, 'h', null) as r", [email])).rows[0]!.r.status).toBe("not_allowed");
+  });
+});

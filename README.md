@@ -84,7 +84,15 @@ If the person hasn't signed in yet, their address is allowlisted and becomes an 
 
 Conflict-of-interest rules are enforced in the database. Such an admin can't moderate themselves: suspension, photo removal, reports about or filed by them, their own partnership, and their own account deletion are all blocked. Reports, moderation notes and audit entries about them are also hidden from them. Add a second administrator, for example a faculty coordinator, to handle anything involving them.
 
-**Current admin:** `joy_mukhopadhyay@pg27.mesaschool.co` (student + admin).
+**Team addresses on other MESA domains.** An address such as `learning@mesaschool.co` becomes a staff admin with no student profile. To give it student access as well, allowlist it with the participation flag:
+
+```bash
+npm run admin:grant -- learning@mesaschool.co --participate
+```
+
+This is the only way a student account can exist outside `@pg27.mesaschool.co`, and only the database owner can set it. The same self-moderation rules apply. Note that a shared mailbox signs in with whoever can read its codes, and its email is shown to students it matches with.
+
+**Current admins:** `joy_mukhopadhyay@pg27.mesaschool.co` (student + admin) and `learning@mesaschool.co` (student + admin, allowlisted; becomes active on first sign-in).
 
 ## Environment variables
 

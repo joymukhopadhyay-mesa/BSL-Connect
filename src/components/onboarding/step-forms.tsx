@@ -8,7 +8,8 @@ import { ChoiceGroup } from "@/components/ui/choice";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { Notice } from "@/components/ui/misc";
 import type { CoachField } from "@/lib/ai/coach";
-import { CAREER_OBJECTIVES, INDUSTRIES, PARTNER_QUALITIES, QUESTIONS, SKILL_SUGGESTIONS, type QuestionKey } from "@/lib/profile/options";
+import {
+  careerObjectiveLabel, careerObjectiveLabels, CAREER_OBJECTIVES, INDUSTRIES, MAX_CAREER_OBJECTIVES, MAX_CAREER_OBJECTIVE_LENGTH, PARTNER_QUALITIES, QUESTIONS, SKILL_SUGGESTIONS, type QuestionKey } from "@/lib/profile/options";
 import type { Profile, Questionnaire } from "@/lib/profile/types";
 
 export type Draft = Profile;
@@ -24,7 +25,7 @@ function coachContext(d: Draft) {
     role_title: d.role_title,
     strengths: d.strengths,
     development_areas: d.development_areas,
-    career_objective: CAREER_OBJECTIVES.find((c) => c.value === d.career_objective)?.label ?? null,
+    career_objectives: careerObjectiveLabels(d.career_objectives),
   };
 }
 
@@ -129,24 +130,25 @@ export function BasicsStep(props: StepProps) {
       </Field>
       <TextBlock {...props} field="background" label="Professional background" hint="Where you've worked or studied, and what you did there." max={700} coach="background" rows={3} />
 
-      <div className="flex flex-col gap-3">
-        <p className="text-[0.95rem] font-medium text-ink">What career outcome are you working towards?</p>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Career objective">
-          {CAREER_OBJECTIVES.map((c) => (
-            <Chip key={c.value} selected={draft.career_objective === c.value} onToggle={() => set("career_objective", c.value)}>
-              {c.label}
-            </Chip>
-          ))}
-        </div>
-        {errors.career_objective ? <p className="text-sm text-danger">{errors.career_objective}</p> : null}
-        <Input
-          aria-label="Career objective details (optional)"
-          placeholder="Add detail (optional) — e.g. a sector or type of role"
-          value={draft.career_objective_detail ?? ""}
-          maxLength={300}
-          onChange={(e) => set("career_objective_detail", e.target.value)}
-        />
-      </div>
+      <Field
+        label="What career outcomes are you working towards?"
+        hint="Choose all that apply, or type your own — for example a specific role or type of company."
+        error={errors.career_objectives}
+      >
+        {() => (
+          <TagPicker
+            value={draft.career_objectives}
+            onChange={(v) => set("career_objectives", v)}
+            suggestions={CAREER_OBJECTIVES.map((c) => c.value)}
+            labelFor={careerObjectiveLabel}
+            max={MAX_CAREER_OBJECTIVES}
+            maxLength={MAX_CAREER_OBJECTIVE_LENGTH}
+            commaSeparates={false}
+            customPlaceholder="Add your own, e.g. Founder's Office roles"
+            ariaLabel="Career outcomes"
+          />
+        )}
+      </Field>
 
       <TextBlock
         {...props}

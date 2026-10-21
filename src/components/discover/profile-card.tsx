@@ -3,7 +3,7 @@ import { BandBadge } from "@/components/matching/compatibility-panel";
 import { Tag } from "@/components/ui/chips";
 import { cn } from "@/components/ui/cn";
 import { ProfilePhoto } from "@/components/ui/misc";
-import { careerObjectiveLabel } from "@/lib/profile/options";
+import { careerObjectiveLabels } from "@/lib/profile/options";
 import type { Candidate } from "./types";
 
 /**
@@ -44,7 +44,7 @@ export function ProfileCard({ candidate, className, priority }: { candidate: Can
             <span className="line-clamp-1">Exploring {c.industries_interest.slice(0, 2).join(" · ")}</span>
           </p>
         ) : null}
-        {c.career_objective ? <p className="sr-only">Career objective: {careerObjectiveLabel(c.career_objective)}</p> : null}
+        {c.career_objectives.length ? <p className="sr-only">Career objectives: {careerObjectiveLabels(c.career_objectives).join(", ")}</p> : null}
       </div>
     </div>
   );

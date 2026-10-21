@@ -39,7 +39,7 @@ const coachOut = (suggestion: string, extra: Partial<CoachResult> = {}): CoachRe
 const input = {
   field: "intro" as const,
   text: "I'm good at marketing and I like figuring out why products sell.",
-  context: { role_title: "Marketing associate", strengths: ["Marketing"], development_areas: [], career_objective: "Marketing and brand" },
+  context: { role_title: "Marketing associate", strengths: ["Marketing"], development_areas: [], career_objectives: ["Marketing and brand"] },
 };
 
 describe("AI configuration", () => {

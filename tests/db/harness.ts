@@ -112,7 +112,7 @@ export async function completeProfile(db: Db, userId: string, opts: { publish?: 
   await db.query(
     `update public.profiles set
        full_name = $2, role_title = 'Analyst', background = 'Three years in consumer research.',
-       career_objective = 'consulting', intro = 'I bring structure and curiosity.',
+       career_objectives = array['consulting', 'Founder''s Office roles'], intro = 'I bring structure and curiosity.',
        strengths = array['Research','Strategy'], strengths_good_at = 'Turning messy data into a clear story.',
        development_areas = array['Finance'], development_current = 'Financial modelling.',
        industries_interest = array['Fintech and financial services'], industries_experience = array['Consulting'],

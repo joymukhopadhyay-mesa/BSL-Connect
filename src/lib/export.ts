@@ -5,7 +5,7 @@ export const EXPORT_COLUMNS = [
   { key: "cohort", header: "Cohort" },
   { key: "role_title", header: "Current or most recent role" },
   { key: "profile_status", header: "Profile status" },
-  { key: "career_objective", header: "Career objective" },
+  { key: "career_objectives", header: "Career objectives" },
   { key: "strengths", header: "Strengths" },
   { key: "industries_experience", header: "Industries worked in" },
   { key: "industries_interest", header: "Industries of interest" },

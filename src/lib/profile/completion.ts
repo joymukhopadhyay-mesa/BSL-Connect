@@ -9,7 +9,7 @@ import type { Profile } from "./types";
  */
 export type CompletionInput = Pick<
   Profile,
-  | "full_name" | "role_title" | "background" | "career_objective" | "intro" | "strengths"
+  | "full_name" | "role_title" | "background" | "career_objectives" | "intro" | "strengths"
   | "strengths_good_at" | "development_areas" | "development_current" | "industries_interest"
   | "questionnaire" | "partner_skills" | "partner_qualities" | "photo_path" | "photo_confirmed"
   | "details_confirmed" | "visibility_acknowledged"
@@ -23,7 +23,7 @@ export function missingFields(p: CompletionInput): string[] {
   if (blank(p.full_name)) missing.push("full_name");
   if (blank(p.role_title)) missing.push("role_title");
   if (blank(p.background)) missing.push("background");
-  if (blank(p.career_objective)) missing.push("career_objective");
+  if (empty(p.career_objectives)) missing.push("career_objectives");
   if (blank(p.intro)) missing.push("intro");
   if (empty(p.strengths)) missing.push("strengths");
   if (blank(p.strengths_good_at)) missing.push("strengths_good_at");
@@ -47,7 +47,7 @@ export function missingFields(p: CompletionInput): string[] {
 
 /** Which onboarding step owns each required field. */
 export const FIELD_STEP: Record<string, number> = {
-  full_name: 1, role_title: 1, background: 1, career_objective: 1, intro: 1,
+  full_name: 1, role_title: 1, background: 1, career_objectives: 1, intro: 1,
   strengths: 2, strengths_good_at: 2,
   development_areas: 3, development_current: 3,
   industries_interest: 4,
@@ -75,7 +75,7 @@ export const FIELD_LABELS: Record<string, string> = {
   full_name: "Full name",
   role_title: "Current or most recent role",
   background: "Professional background",
-  career_objective: "Career objective",
+  career_objectives: "Career objectives",
   intro: "Introduction",
   strengths: "Strength tags",
   strengths_good_at: "What you're good at",

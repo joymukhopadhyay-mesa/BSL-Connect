@@ -2,7 +2,7 @@ import { Briefcase, Compass, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 import { Tag } from "@/components/ui/chips";
 import { ProfilePhoto } from "@/components/ui/misc";
-import { careerObjectiveLabel, optionLabel, QUESTIONS } from "@/lib/profile/options";
+import { careerObjectiveLabels, optionLabel, QUESTIONS } from "@/lib/profile/options";
 import type { Profile } from "@/lib/profile/types";
 
 /**
@@ -50,15 +50,9 @@ export function ProfileDetail({
             <Prose>{p.background}</Prose>
           </Labelled>
         ) : null}
-        {p.career_objective ? (
-          <Labelled label="Career objective">
-            <p className="flex items-start gap-2 text-[0.97rem] text-ink">
-              <Compass className="mt-0.5 size-4 shrink-0 text-forest-600" aria-hidden />
-              <span>
-                {careerObjectiveLabel(p.career_objective)}
-                {p.career_objective_detail ? <span className="text-ink-muted"> — {p.career_objective_detail}</span> : null}
-              </span>
-            </p>
+        {p.career_objectives.length ? (
+          <Labelled label={p.career_objectives.length > 1 ? "Career objectives" : "Career objective"} icon={<Compass className="size-3.5" aria-hidden />}>
+            <Tags items={careerObjectiveLabels(p.career_objectives)} tone="sage" />
           </Labelled>
         ) : null}
       </Section>

@@ -55,6 +55,10 @@ export const CAREER_OBJECTIVES = [
 
 export type CareerObjective = (typeof CAREER_OBJECTIVES)[number]["value"];
 
+/** A student may pick several preset outcomes and add their own. */
+export const MAX_CAREER_OBJECTIVES = 6;
+export const MAX_CAREER_OBJECTIVE_LENGTH = 80;
+
 export const PARTNER_QUALITIES = [
   "Reliable",
   "Proactive communicator",
@@ -230,8 +234,13 @@ export function optionLabel(key: QuestionKey, value: string): string {
   return QUESTION_BY_KEY[key].options.find((o) => o.value === value)?.label ?? value;
 }
 
+/** Preset keys map to their label; free-text entries are shown as typed. */
 export function careerObjectiveLabel(value: string | null | undefined): string {
   return CAREER_OBJECTIVES.find((c) => c.value === value)?.label ?? value ?? "";
+}
+
+export function careerObjectiveLabels(values: readonly string[] | null | undefined): string[] {
+  return (values ?? []).map(careerObjectiveLabel);
 }
 
 export const REPORT_CATEGORIES = [

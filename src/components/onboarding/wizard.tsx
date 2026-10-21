@@ -19,7 +19,7 @@ import {
 } from "./step-forms";
 
 const STEP_FIELDS: Record<number, Array<keyof Profile>> = {
-  1: ["full_name", "cohort", "role_title", "background", "years_experience", "career_objective", "career_objective_detail", "intro"],
+  1: ["full_name", "cohort", "role_title", "background", "years_experience", "career_objectives", "intro"],
   2: ["strengths", "strengths_good_at", "strengths_problems", "strengths_example"],
   3: ["development_areas", "development_current", "development_complement", "development_help"],
   4: ["industries_experience", "industries_experience_detail", "industries_interest"],

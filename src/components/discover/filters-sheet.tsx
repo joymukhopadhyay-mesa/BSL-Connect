@@ -32,7 +32,7 @@ export function FiltersSheet({
       interest: uniqueSorted(candidates.flatMap((c) => c.industries_interest)),
       experience: uniqueSorted(candidates.flatMap((c) => c.industries_experience)),
       skills: uniqueSorted(candidates.flatMap((c) => c.strengths)),
-      objective: uniqueSorted(candidates.map((c) => c.career_objective ?? "").filter(Boolean)),
+      objective: uniqueSorted(candidates.flatMap((c) => c.career_objectives)),
       workingStyle: uniqueSorted(
         candidates.map((c) => (typeof c.questionnaire?.answers?.working_style === "string" ? c.questionnaire.answers.working_style : "")).filter(Boolean),
       ),

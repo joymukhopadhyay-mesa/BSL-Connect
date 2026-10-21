@@ -103,3 +103,45 @@ test("discovery actions stay above the mobile navigation", async ({ page }, info
   // The preview banner adds ~70px that the real app doesn't have, so allow for it.
   expect(action!.y + action!.height).toBeLessThanOrEqual(nav!.y + 80);
 });
+
+const escapeRe = (t: string) => new RegExp(t.split("").map((c) => (/[a-z0-9 ]/i.test(c) ? c : "\\" + c)).join(""));
+
+test("career outcomes: multiple selection, and typed text becomes a selected chip", async ({ page }, info) => {
+  await page.goto("/design-preview?view=onboarding&step=1");
+  const group = page.getByRole("group", { name: "Career outcomes" });
+  await expect(group.getByRole("button", { name: "Marketing and brand" })).toHaveAttribute("aria-pressed", "true");
+  await expect(group.getByRole("button", { name: "Product management" })).toHaveAttribute("aria-pressed", "true");
+
+  // Selecting another preset keeps the others: it is a multi-select.
+  await group.getByRole("button", { name: "Consulting" }).click();
+  for (const name of ["Marketing and brand", "Product management", "Consulting"]) {
+    await expect(group.getByRole("button", { name })).toHaveAttribute("aria-pressed", "true");
+  }
+  await expect(group.getByText("3 of 6 selected")).toBeVisible();
+
+  // Typed text is previewed as a selected chip straight away (commas do not split it)...
+  const text = "Founder's Office - Generalist, AI Generalist roles";
+  const input = page.getByLabel("Career outcomes: add your own");
+  await input.fill(text);
+  await expect(page.getByTestId("pending-selection")).toHaveText(escapeRe(text));
+  await group.scrollIntoViewIfNeeded();
+  await group.screenshot({ path: `screenshots/career-pending-${info.project.name}.png` });
+
+  // ...and is committed when the field loses focus (e.g. tapping Continue).
+  await page.getByRole("heading", { level: 1 }).click();
+  const chip = group.getByRole("button", { name: escapeRe(text) });
+  await expect(chip).toHaveAttribute("aria-pressed", "true");
+  await expect(group.getByText("4 of 6 selected")).toBeVisible();
+  await expect(page.getByTestId("pending-selection")).toHaveCount(0);
+  await group.screenshot({ path: `screenshots/career-selected-${info.project.name}.png` });
+
+  // Typing the name of a preset selects that preset instead of adding a duplicate; chips can be removed.
+  await input.fill("product management");
+  await input.press("Enter");
+  await expect(group.getByText("4 of 6 selected")).toBeVisible();
+  await chip.click();
+  await expect(group.getByText("3 of 6 selected")).toBeVisible();
+
+  const fits = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+  expect(fits).toBe(true);
+});

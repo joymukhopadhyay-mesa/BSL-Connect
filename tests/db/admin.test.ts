@@ -134,7 +134,7 @@ describe("exports", () => {
     const res = await callAdmin(admin, "admin_export_rows", []);
     const columns = res.fields.map((f) => f.name);
     expect(columns).toEqual([
-      "full_name", "email", "cohort", "role_title", "profile_status", "career_objective", "strengths",
+      "full_name", "email", "cohort", "role_title", "profile_status", "career_objectives", "strengths",
       "industries_experience", "industries_interest", "partnership_status", "partner_name", "partner_email", "finalised_at",
     ]);
     for (const forbidden of ["password", "token", "encrypted_password", "likes", "reason", "questionnaire", "suspended"]) {

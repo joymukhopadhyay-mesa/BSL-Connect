@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { toCsv } from "@/lib/csv";
 import { getViewer } from "@/lib/data/session";
 import { EXPORT_COLUMNS } from "@/lib/export";
-import { careerObjectiveLabel } from "@/lib/profile/options";
+import { careerObjectiveLabels } from "@/lib/profile/options";
 
 /**
  * Cohort CSV for administrators. Only permitted fields (see
@@ -23,7 +23,7 @@ export async function GET() {
 
   const rows: Array<Record<string, unknown>> = data.map((r) => ({
     ...r,
-    career_objective: careerObjectiveLabel(r.career_objective as string | null),
+    career_objectives: careerObjectiveLabels(String(r.career_objectives ?? "").split("; ").filter(Boolean)).join("; "),
   }));
   const csv = toCsv(rows, EXPORT_COLUMNS.map((c) => ({ key: c.key as string, header: c.header })));
   const date = new Date().toISOString().slice(0, 10);

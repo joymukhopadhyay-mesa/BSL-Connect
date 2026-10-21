@@ -1,4 +1,4 @@
-import { CAREER_OBJECTIVES, QUESTION_BY_KEY, optionLabel, type QuestionKey } from "@/lib/profile/options";
+import { CAREER_OBJECTIVES, QUESTION_BY_KEY, careerObjectiveLabel, optionLabel, type QuestionKey } from "@/lib/profile/options";
 import type { Profile } from "@/lib/profile/types";
 import { DEFAULT_WEIGHTS, FACTOR_LABELS, MIN_WEIGHT_COVERAGE, validateWeights, type FactorKey, type Weights } from "./weights";
 
@@ -24,7 +24,7 @@ import { DEFAULT_WEIGHTS, FACTOR_LABELS, MIN_WEIGHT_COVERAGE, validateWeights, t
 export type ScoringProfile = Pick<
   Profile,
   | "strengths" | "development_areas" | "industries_experience" | "industries_interest"
-  | "partner_skills" | "partner_industries" | "career_objective" | "questionnaire"
+  | "partner_skills" | "partner_industries" | "career_objectives" | "questionnaire"
 >;
 
 export type FactorResult = {
@@ -237,20 +237,35 @@ function experience(you: ScoringProfile, they: ScoringProfile): Omit<FactorResul
   return { score, evidence };
 }
 
-function objectiveSimilarity(a: string | null, b: string | null): number | null {
-  if (!a || !b) return null;
-  if (a === b) return 1;
+/** How close two single objectives are: same, related field, "still exploring", or different. */
+function pairSimilarity(a: string, b: string): number {
+  if (a.toLowerCase() === b.toLowerCase()) return 1;
   if (a === "undecided" || b === "undecided") return 0.65;
   const ga = CAREER_OBJECTIVES.find((c) => c.value === a)?.group;
   const gb = CAREER_OBJECTIVES.find((c) => c.value === b)?.group;
-  return ga && ga === gb ? 0.75 : 0.45;
+  // Free-text entries have no field group, so they only count when identical.
+  return ga && gb && ga === gb ? 0.75 : 0.45;
+}
+
+/**
+ * Similarity between two sets of objectives. A student may want several
+ * outcomes, so each objective is matched with its closest counterpart on the
+ * other side, in both directions: sharing any one objective scores well, and
+ * having extra, different ones does not drag the score down.
+ */
+function objectiveSimilarity(a: readonly string[], b: readonly string[]): number | null {
+  if (!a.length || !b.length) return null;
+  const best = (xs: readonly string[], ys: readonly string[]) =>
+    xs.reduce((sum, x) => sum + Math.max(...ys.map((y) => pairSimilarity(x, y))), 0) / xs.length;
+  return (best(a, b) + best(b, a)) / 2;
 }
 
 function goals(you: ScoringProfile, they: ScoringProfile): Omit<FactorResult, "key" | "label" | "weight"> {
-  const obj = objectiveSimilarity(you.career_objective, they.career_objective);
+  const obj = objectiveSimilarity(you.career_objectives, they.career_objectives);
   const exp = compareDimension(you, they, "expectations");
+  const shared = intersect(labelSet(you.career_objectives), labelSet(they.career_objectives)).map(careerObjectiveLabel);
   const evidence: string[] = [];
-  if (obj === 1) evidence.push("You share the same career objective.");
+  if (shared.length) evidence.push(`You're both working towards ${list(shared)}.`);
   else if (obj !== null && obj >= 0.75) evidence.push("Your career objectives are in closely related fields.");
   else if (obj !== null) evidence.push("You're heading towards different career outcomes, which can widen a project's perspective.");
   if (exp && exp.similarity > 0.6) evidence.push(`You both expect ${exp.you === exp.they ? exp.you : "overlapping things"} from a partner.`);

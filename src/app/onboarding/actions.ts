@@ -14,8 +14,8 @@ export type SaveResult =
 
 /** Columns a student may write — mirrors the column-level grant in the database. */
 const WRITABLE = new Set([
-  "full_name", "cohort", "role_title", "background", "years_experience", "career_objective",
-  "career_objective_detail", "intro", "strengths", "strengths_good_at", "strengths_problems",
+  "full_name", "cohort", "role_title", "background", "years_experience", "career_objectives",
+  "intro", "strengths", "strengths_good_at", "strengths_problems",
   "strengths_example", "development_areas", "development_current", "development_complement",
   "development_help", "industries_experience", "industries_experience_detail", "industries_interest",
   "questionnaire", "partner_skills", "partner_industries", "partner_qualities", "partner_success",

@@ -31,13 +31,21 @@ describe("photo validation", () => {
 
 describe("profile step validation", () => {
   it("trims text, converts blanks to null and bounds lengths", () => {
-    const r = basicsSchema.parse({ full_name: "  Asha  ", intro: "   ", years_experience: "2.25" });
+    const r = basicsSchema.parse({ full_name: "  Asha  ", intro: "   ", years_experience: "2.25", career_objectives: [] });
     expect(r.full_name).toBe("Asha");
     expect(r.intro).toBeNull();
     expect(r.years_experience).toBe(2.3);
-    expect(basicsSchema.safeParse({ intro: "x".repeat(800) }).success).toBe(false);
-    expect(basicsSchema.safeParse({ years_experience: 99 }).success).toBe(false);
-    expect(basicsSchema.safeParse({ career_objective: "astronaut" }).success).toBe(false);
+    expect(basicsSchema.safeParse({ intro: "x".repeat(800), career_objectives: [] }).success).toBe(false);
+    expect(basicsSchema.safeParse({ years_experience: 99, career_objectives: [] }).success).toBe(false);
+  });
+
+  it("career objectives: several presets plus free text, de-duplicated and bounded", () => {
+    const r = basicsSchema.parse({
+      career_objectives: ["consulting", "product", "Consulting", " Founder's Office - Generalist, AI Generalist roles ", ""],
+    });
+    expect(r.career_objectives).toEqual(["consulting", "product", "Founder's Office - Generalist, AI Generalist roles"]);
+    expect(basicsSchema.safeParse({ career_objectives: Array.from({ length: 7 }, (_, i) => `Outcome ${i}`) }).success).toBe(false);
+    expect(basicsSchema.safeParse({ career_objectives: ["x".repeat(81)] }).success).toBe(false);
   });
 
   it("de-duplicates custom tags and enforces limits", () => {
@@ -72,25 +80,15 @@ describe("profile completeness", () => {
     const cases = [
       makeProfile(),
       makeProfile({ intro: "" }),
+      makeProfile({ career_objectives: [] }),
       makeProfile({ strengths: [], photo_path: null }),
       makeProfile({ questionnaire: { answers: { working_style: "structured" } } }),
       makeProfile({ visibility_acknowledged: false, details_confirmed: false, photo_confirmed: false }),
     ];
     for (const p of cases) {
       const row = await db.query<{ m: string[] }>(
-        `select private.profile_missing_fields(row(
-          $1::uuid, $2, $3, $4, $5, $6::numeric, $7, $8, $9, $10::text[], $11, $12, $13, $14::text[], $15, $16, $17,
-          $18::text[], $19, $20::text[], $21::jsonb, $22::text[], $23::text[], $24::text[], $25, $26, $27, $28::timestamptz,
-          $29, $30, $31::smallint, $32, $33::timestamptz, $34, $35::timestamptz, $36::timestamptz
-        )::public.profiles) as m`,
-        [
-          p.id, p.full_name, p.cohort, p.role_title, p.background, p.years_experience, p.career_objective, p.career_objective_detail,
-          p.intro, p.strengths, p.strengths_good_at, p.strengths_problems, p.strengths_example, p.development_areas,
-          p.development_current, p.development_complement, p.development_help, p.industries_experience,
-          p.industries_experience_detail, p.industries_interest, JSON.stringify(p.questionnaire), p.partner_skills,
-          p.partner_industries, p.partner_qualities, p.partner_success, null, p.photo_confirmed, null, p.details_confirmed,
-          p.visibility_acknowledged, p.onboarding_step, p.status, null, p.version, p.created_at, p.updated_at,
-        ].map((v, i) => (i === 25 ? (p.photo_path ? `${p.id}/avatar` : null) : v)),
+        "select private.profile_missing_fields(jsonb_populate_record(null::public.profiles, $1::jsonb)) as m",
+        [JSON.stringify({ ...p, photo_path: p.photo_path ? `${p.id}/avatar` : null })],
       );
       expect(row.rows[0]!.m.sort()).toEqual(missingFields(p).sort());
     }

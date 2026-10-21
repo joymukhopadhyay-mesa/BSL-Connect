@@ -53,7 +53,7 @@ describe("deterministic compatibility scoring", () => {
   it("reports insufficient data instead of a misleading low score", () => {
     const sparse = makeProfile({
       strengths: [], development_areas: [], partner_skills: [], industries_interest: [], industries_experience: [],
-      career_objective: null, questionnaire: {},
+      career_objectives: [], questionnaire: {},
     });
     const r = scoreCompatibility(you, sparse);
     expect(r.score).toBeNull();
@@ -105,5 +105,36 @@ describe("pair insights", () => {
     expect(i.styleDifferences.map((d) => d.key)).toContain("ownership");
     expect(i.discussionQuestions.length).toBeGreaterThan(0);
     expect(i.discussionQuestions.length).toBeLessThanOrEqual(5);
+  });
+});
+
+describe("multiple career objectives", () => {
+  const goalsFactor = (a: string[], b: string[]) =>
+    scoreCompatibility(makeProfile({ career_objectives: a }), makeProfile({ career_objectives: b })).factors.find((f) => f.key === "goals")!;
+
+  it("sharing any one objective scores well, and extra objectives do not lower it", () => {
+    const one = goalsFactor(["consulting"], ["consulting"]);
+    const extra = goalsFactor(["consulting"], ["consulting", "product", "Founder's Office roles"]);
+    expect(one.score!).toBeGreaterThan(0.85);
+    expect(extra.score!).toBeGreaterThanOrEqual(one.score! * 0.85);
+    expect(extra.evidence.join(" ")).toMatch(/both working towards Consulting/);
+  });
+
+  it("related fields beat unrelated ones; free text matches only when identical", () => {
+    const related = goalsFactor(["consulting"], ["strategy_bizops"]);
+    const unrelated = goalsFactor(["consulting"], ["sales_bd"]);
+    expect(related.score!).toBeGreaterThan(unrelated.score!);
+    const sameText = goalsFactor(["AI generalist roles"], ["ai generalist roles"]);
+    const otherText = goalsFactor(["AI generalist roles"], ["Quant research"]);
+    expect(sameText.score!).toBeGreaterThan(otherText.score!);
+    expect(sameText.evidence.join(" ")).toMatch(/AI generalist roles/i);
+  });
+
+  it("is symmetric and treats no objective as unknown, not as a poor match", () => {
+    expect(goalsFactor(["consulting", "product"], ["finance_investing"]).score).toBe(
+      goalsFactor(["finance_investing"], ["consulting", "product"]).score,
+    );
+    const none = scoreCompatibility(makeProfile({ career_objectives: [] }), makeProfile());
+    expect(none.factors.find((f) => f.key === "goals")!.evidence.join(" ")).not.toMatch(/different career outcomes/);
   });
 });

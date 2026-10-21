@@ -14,8 +14,8 @@ export type Profile = {
   role_title: string | null;
   background: string | null;
   years_experience: number | null;
-  career_objective: string | null;
-  career_objective_detail: string | null;
+  /** Preset option keys and free-text entries. */
+  career_objectives: string[];
   intro: string | null;
   strengths: string[];
   strengths_good_at: string | null;

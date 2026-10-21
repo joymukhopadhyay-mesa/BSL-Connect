@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CAREER_OBJECTIVES, INDUSTRIES, PARTNER_QUALITIES, QUESTIONS, QUESTION_KEYS } from "./options";
+import { INDUSTRIES, MAX_CAREER_OBJECTIVES, MAX_CAREER_OBJECTIVE_LENGTH, PARTNER_QUALITIES, QUESTIONS, QUESTION_KEYS } from "./options";
 
 /**
  * Server-side validation for each onboarding step. Drafts may be saved with
@@ -57,12 +57,7 @@ export const basicsSchema = z.object({
       }
       return Math.round(n * 10) / 10;
     }),
-  career_objective: z
-    .enum(CAREER_OBJECTIVES.map((c) => c.value) as [string, ...string[]])
-    .nullable()
-    .optional()
-    .transform((v) => v ?? null),
-  career_objective_detail: optionalText(300),
+  career_objectives: tags(MAX_CAREER_OBJECTIVES, MAX_CAREER_OBJECTIVE_LENGTH),
   intro: optionalText(700),
 });
 

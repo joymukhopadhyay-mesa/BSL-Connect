@@ -27,7 +27,7 @@ export function matchesFilters(c: Candidate, f: Filters): boolean {
     any(f.interest, c.industries_interest) &&
     any(f.experience, c.industries_experience) &&
     any(f.skills, c.strengths) &&
-    any(f.objective, c.career_objective ? [c.career_objective] : []) &&
+    any(f.objective, c.career_objectives) &&
     any(f.workingStyle, typeof ws === "string" ? [ws] : [])
   );
 }

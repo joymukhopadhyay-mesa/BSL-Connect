@@ -10,7 +10,7 @@ type Context = {
   role_title?: string | null;
   strengths?: string[];
   development_areas?: string[];
-  career_objective?: string | null;
+  career_objectives?: string[];
 };
 
 /**

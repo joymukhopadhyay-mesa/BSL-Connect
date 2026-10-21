@@ -50,7 +50,7 @@ export const coachRequestSchema = z.object({
       role_title: z.string().max(120).nullish(),
       strengths: z.array(z.string().max(48)).max(12).nullish(),
       development_areas: z.array(z.string().max(48)).max(10).nullish(),
-      career_objective: z.string().max(60).nullish(),
+      career_objectives: z.array(z.string().max(80)).max(6).nullish(),
     })
     .default({}),
 });
@@ -107,7 +107,7 @@ export function buildCoachPrompt(req: CoachRequest, strict = false): string {
     ctx.role_title ? `Current or most recent role: ${ctx.role_title}` : null,
     ctx.strengths?.length ? `Strength tags: ${ctx.strengths.join(", ")}` : null,
     ctx.development_areas?.length ? `Development tags: ${ctx.development_areas.join(", ")}` : null,
-    ctx.career_objective ? `Career objective: ${ctx.career_objective}` : null,
+    ctx.career_objectives?.length ? `Career objectives: ${ctx.career_objectives.join("; ")}` : null,
   ].filter(Boolean);
 
   return [
@@ -126,7 +126,7 @@ export function buildCoachPrompt(req: CoachRequest, strict = false): string {
 
 function sourcesFor(req: CoachRequest): string[] {
   const ctx = req.context ?? {};
-  return [req.text, ctx.role_title ?? "", ...(ctx.strengths ?? []), ...(ctx.development_areas ?? []), ctx.career_objective ?? ""];
+  return [req.text, ctx.role_title ?? "", ...(ctx.strengths ?? []), ...(ctx.development_areas ?? []), ...(ctx.career_objectives ?? [])];
 }
 
 /**

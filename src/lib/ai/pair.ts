@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { careerObjectiveLabel, optionLabel, QUESTIONS, type QuestionKey } from "@/lib/profile/options";
+import { careerObjectiveLabels, optionLabel, QUESTIONS, type QuestionKey } from "@/lib/profile/options";
 import type { Profile } from "@/lib/profile/types";
 import type { CompatibilityResult } from "@/lib/matching/scoring";
 import type { PairInsights } from "@/lib/matching/insights";
@@ -61,7 +61,7 @@ export type PairProfilePayload = {
   years_experience: number | null;
   background: string | null;
   intro: string | null;
-  career_objective: string;
+  career_objectives: string[];
   strengths: string[];
   strengths_good_at: string | null;
   strengths_example: string | null;
@@ -93,7 +93,7 @@ export function minimalPairProfile(p: Profile): PairProfilePayload {
     years_experience: p.years_experience,
     background: p.background,
     intro: p.intro,
-    career_objective: careerObjectiveLabel(p.career_objective),
+    career_objectives: careerObjectiveLabels(p.career_objectives),
     strengths: p.strengths,
     strengths_good_at: p.strengths_good_at,
     strengths_example: p.strengths_example,

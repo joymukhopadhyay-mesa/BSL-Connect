@@ -216,3 +216,22 @@ describe("profile photo access", () => {
     expect(afterSuspension.rows).toHaveLength(0);
   });
 });
+
+describe("career objectives", () => {
+  it("are required to publish, accept several entries, and enforce the limits", async () => {
+    const id = await createUser(db);
+    await completeProfile(db, id, { publish: false });
+    await asUser(db, id, () => db.query("update public.profiles set career_objectives = '{}' where id = $1", [id]));
+    expect(await errorCode(asUser(db, id, () => db.query("update public.profiles set status = 'published' where id = $1", [id]))))
+      .toContain("PROFILE_INCOMPLETE");
+    await asUser(db, id, () =>
+      db.query("update public.profiles set career_objectives = array['consulting','product',$2] where id = $1", [id, "Founder's Office - Generalist, AI Generalist roles"]));
+    await asUser(db, id, () => db.query("update public.profiles set status = 'published' where id = $1", [id]));
+    const row = await db.query<{ career_objectives: string[] }>("select career_objectives from public.profiles where id = $1", [id]);
+    expect(row.rows[0]!.career_objectives).toHaveLength(3);
+    expect(await errorCode(db.query("update public.profiles set career_objectives = array_fill('x'::text, array[7]) where id = $1", [id])))
+      .toMatch(/check constraint/);
+    expect(await errorCode(db.query("update public.profiles set career_objectives = array[repeat('x', 81)] where id = $1", [id])))
+      .toMatch(/check constraint/);
+  });
+});

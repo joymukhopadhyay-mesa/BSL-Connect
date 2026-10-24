@@ -3,6 +3,7 @@
 import { ChevronDown, Eye } from "lucide-react";
 import { useState } from "react";
 import { CoachAssist } from "@/components/ai/coach-assist";
+import { VoiceInput } from "@/components/ai/voice-input";
 import { Chip, TagPicker } from "@/components/ui/chips";
 import { ChoiceGroup } from "@/components/ui/choice";
 import { Field, Input, Textarea } from "@/components/ui/field";
@@ -69,6 +70,7 @@ function TextBlock({
           />
         )}
       </Field>
+      <VoiceInput label={label} value={value} max={max} onChange={(v) => set(field, v as never)} aiAvailable={aiAvailable} />
       {coach ? (
         <CoachAssist
           field={coach}
@@ -243,7 +245,7 @@ export function IndustriesStep(props: StepProps) {
   );
 }
 
-export function QuestionnaireStep({ draft, set, errors }: StepProps) {
+export function QuestionnaireStep({ draft, set, errors, aiAvailable }: StepProps) {
   const q: Questionnaire = draft.questionnaire ?? {};
   const answers = q.answers ?? {};
   const notes = q.notes ?? {};
@@ -282,14 +284,23 @@ export function QuestionnaireStep({ draft, set, errors }: StepProps) {
             <p className="text-sm text-danger">{errors[`questionnaire.answers.${question.key}`]}</p>
           ) : null}
           {openNotes[question.key] ? (
-            <Textarea
-              rows={2}
-              maxLength={300}
-              aria-label={`Note on ${question.dimension.toLowerCase()} (optional)`}
-              placeholder="Add context in your own words (optional)"
-              value={notes[question.key] ?? ""}
-              onChange={(e) => setNote(question.key, e.target.value)}
-            />
+            <>
+              <Textarea
+                rows={2}
+                maxLength={300}
+                aria-label={`Note on ${question.dimension.toLowerCase()} (optional)`}
+                placeholder="Add context in your own words (optional)"
+                value={notes[question.key] ?? ""}
+                onChange={(e) => setNote(question.key, e.target.value)}
+              />
+              <VoiceInput
+                label={`Note on ${question.dimension.toLowerCase()}`}
+                value={notes[question.key] ?? ""}
+                max={300}
+                onChange={(v) => setNote(question.key, v)}
+                aiAvailable={aiAvailable}
+              />
+            </>
           ) : (
             <button
               type="button"

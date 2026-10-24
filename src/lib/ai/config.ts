@@ -3,6 +3,7 @@ import { OpenRouterProvider } from "./openrouter";
 import type { AIProvider, AIStatus } from "./provider";
 
 export const DEFAULT_OPENROUTER_MODEL = "google/gemini-3.7-flash";
+export const DEFAULT_OPENROUTER_STT_MODEL = "google/gemini-3.7-flash";
 const EFFORTS = ["minimal", "low", "medium", "high"] as const;
 type Effort = (typeof EFFORTS)[number];
 
@@ -28,7 +29,10 @@ export function resolveAIProvider(env: Env = process.env): { provider: AIProvide
   }
   const effortRaw = (env.OPENROUTER_REASONING_EFFORT ?? "low").trim() as Effort;
   const reasoningEffort: Effort = EFFORTS.includes(effortRaw) ? effortRaw : "low";
-  const provider = new OpenRouterProvider({ apiKey, model, reasoningEffort, siteUrl: getSiteUrl() });
+  // Voice dictation model; a non-Google value is ignored rather than trusted.
+  const sttCandidate = env.OPENROUTER_STT_MODEL?.trim();
+  const sttModel = sttCandidate?.startsWith("google/") ? sttCandidate : DEFAULT_OPENROUTER_STT_MODEL;
+  const provider = new OpenRouterProvider({ apiKey, model, sttModel, reasoningEffort, siteUrl: getSiteUrl() });
   return { provider, status: { available: true, provider: provider.name, model } };
 }
 

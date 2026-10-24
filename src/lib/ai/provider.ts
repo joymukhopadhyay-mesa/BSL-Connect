@@ -10,11 +10,22 @@ import type { z } from "zod";
  * and must return output that validates against `schema`. They have no
  * tools and no database access.
  */
+/** Audio container formats the provider accepts as `input_audio`. */
+export type ProviderAudioFormat = "wav" | "ogg";
+
 export type StructuredRequest<T> = {
   /** Feature name, used for logging only. */
-  feature: "profile_coach" | "pair_insight";
+  feature: "profile_coach" | "pair_insight" | "voice_transcription";
   system: string;
   prompt: string;
+  /**
+   * Optional audio attached to the user turn (voice dictation). `data` is
+   * base64 without a data-URI prefix. It is untrusted content, like `prompt`,
+   * and is processed in memory only.
+   */
+  audio?: { data: string; format: ProviderAudioFormat };
+  /** Overrides the provider's reasoning effort for this request. */
+  reasoningEffort?: "minimal" | "low" | "medium" | "high";
   schema: z.ZodType<T>;
   /** JSON Schema sent to the provider's structured-output mode. */
   jsonSchema: Record<string, unknown>;
@@ -25,6 +36,8 @@ export type StructuredRequest<T> = {
 export interface AIProvider {
   readonly name: string;
   readonly model: string;
+  /** Model used for requests that carry audio (voice dictation). Falls back to `model`. */
+  readonly sttModel?: string;
   generate<T>(request: StructuredRequest<T>): Promise<T>;
 }
 

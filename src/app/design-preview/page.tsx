@@ -38,7 +38,7 @@ export default async function DesignPreview({ searchParams }: PageProps<"/design
         ))}
       </div>
       {view === "onboarding" ? (
-        <OnboardingWizard initialProfile={{ ...SAMPLE_ME, status: "draft", onboarding_step: 8 }} initialPhotoUrl={null} initialStep={Math.min(8, Math.max(1, step))} aiAvailable />
+        <OnboardingWizard initialProfile={{ ...SAMPLE_ME, status: "draft", onboarding_step: 8 }} initialPhotoUrl={null} initialStep={Math.min(8, Math.max(1, step))} aiAvailable={sp.ai !== "off"} />
       ) : (
         <>
           <StudentNav openMatches={1} partnered={false} />

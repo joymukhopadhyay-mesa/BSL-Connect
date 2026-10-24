@@ -1,4 +1,4 @@
-import { LogOut, Sparkles } from "lucide-react";
+import { LogOut, Mic, Sparkles } from "lucide-react";
 import { signOut } from "@/app/sign-in/actions";
 import { DeleteAccount } from "@/components/profile/delete-account";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,12 @@ export default async function SettingsPage({ searchParams }: PageProps<"/setting
             ? "AI writing suggestions and fit explanations are available. Only the profile details needed are sent to the AI provider — never your name, email or account details."
             : "AI features are currently unavailable. Everything else, including compatibility insights, works without them."}
         </p>
+        {ai.available ? (
+          <p className="mt-3 flex items-start gap-2 text-sm leading-relaxed text-ink-muted">
+            <Mic className="mt-0.5 size-4 shrink-0 text-forest-600" aria-hidden />
+            Voice dictation: if you use the microphone on a text answer, the recording is sent to the AI provider to be turned into text. It isn&apos;t stored, and you can edit the text before saving.
+          </p>
+        ) : null}
       </SectionCard>
 
       <SectionCard title="How BSL Connect works">

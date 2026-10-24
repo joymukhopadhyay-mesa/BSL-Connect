@@ -30,7 +30,7 @@ src/lib/profile/          vocabularies, Zod step schemas, completeness (mirrors 
 src/app/(student)/        discover, shortlist, matches, partnership, students/[id], me, settings + actions.ts
 src/app/admin/            overview, students, partnerships, reports, export + actions.ts
 src/app/onboarding/       8-step profile wizard + actions.ts
-src/app/api/              photo upload, AI coach, AI pair explanation
+src/app/api/              photo upload, AI coach, AI pair explanation, voice transcription
 ```
 
 ## Data model
@@ -98,7 +98,7 @@ Guarantees and where they come from:
 7. **No privileged keys in the app beyond the database URL.** Account deletion is the `admin_delete_account` RPC, which re-checks admin status.
 8. **AI isolation.** Server-only key; no tools; no database access. Untrusted text is escaped and wrapped, output is schema-validated and checked for invented specifics.
 9. **User content** is rendered as React text, never as HTML. CSV exports neutralise formula injection.
-10. **Headers:** `X-Frame-Options: DENY`, `nosniff`, a strict referrer policy and a permissions policy. `X-Powered-By` is removed.
+10. **Headers:** `X-Frame-Options: DENY`, `nosniff`, a strict referrer policy and a permissions policy (microphone allowed for this site only, for voice dictation; camera and location blocked). `X-Powered-By` is removed.
 
 ## Data retention and account removal
 

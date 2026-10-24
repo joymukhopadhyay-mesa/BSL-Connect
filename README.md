@@ -22,7 +22,7 @@ A private, mobile-first partner-discovery platform for MESA School of Business *
 | Area | Routes |
 |---|---|
 | Sign-in with a 6-digit email code | `/sign-in` |
-| Onboarding (8 steps, save and resume, AI coach) | `/onboarding?step=1…8` |
+| Onboarding (8 steps, save and resume, AI coach, voice dictation) | `/onboarding?step=1…8` |
 | Discovery (swipe or buttons, keyboard, filters, full-profile sheet, undo, mutual-match moment) | `/discover` |
 | Full profile with compatibility insights, AI explanation and report | `/students/[id]` |
 | Ranked shortlist and revisiting passed profiles | `/shortlist` |
@@ -105,6 +105,7 @@ This is the only way a student account can exist outside `@pg27.mesaschool.co`, 
 | `EMAIL_FROM` | yes | a sender on a Resend-verified domain |
 | `OPENROUTER_API_KEY` | for AI | server only |
 | `OPENROUTER_MODEL` | no | default `google/gemini-3.7-flash`; must start with `google/` |
+| `OPENROUTER_STT_MODEL` | no | voice dictation model; default `google/gemini-3.7-flash` (reads audio); must start with `google/`, otherwise the default is used |
 | `OPENROUTER_REASONING_EFFORT` | no | `low` by default |
 | `AI_PROVIDER` | no | `openrouter` (default) or `none` |
 | `NEXT_PUBLIC_SITE_URL` | no | falls back to Vercel's production URL |
@@ -129,6 +130,9 @@ Every request goes through OpenRouter to `google/gemini-3.7-flash`, with `provid
 |---|---|---|
 | Profile-coach suggestion | ≈ $0.001 | 30 per hour |
 | Pair explanation | ≈ $0.002–0.004 (cached until either profile changes) | 40 per hour |
+| Voice dictation (one recording of up to 90 s) | ≈ $0.003 for a 15-second clip; roughly $0.01 for a full 90-second one (estimate) | 40 per hour |
+
+The voice figure comes from one real 15-second test clip (about $0.0027 at Google's upstream rates; 388 audio tokens plus about 140 reasoning tokens) scaled up to 90 seconds. It is an estimate until real usage is measured.
 
 Costs are estimates based on the model's listed pricing ($0.75 / $3.75 per million input/output tokens). When the account is out of credits (HTTP 402), AI features show as unavailable and nothing is retried. Everything else keeps working.
 

@@ -20,6 +20,8 @@ export const GOOGLE_PROVIDERS = ["google-vertex", "google-ai-studio"] as const;
 export type OpenRouterOptions = {
   apiKey: string;
   model: string;
+  /** Model for audio requests; must also start with `google/`. Defaults to `model`. */
+  sttModel?: string;
   reasoningEffort: "minimal" | "low" | "medium" | "high";
   siteUrl?: string;
   fetchImpl?: typeof fetch;
@@ -37,27 +39,36 @@ type ChatResponse = {
 export class OpenRouterProvider implements AIProvider {
   readonly name = "openrouter";
   readonly model: string;
+  readonly sttModel: string;
 
   constructor(private readonly options: OpenRouterOptions) {
-    if (!options.model.startsWith("google/")) {
+    const sttModel = options.sttModel ?? options.model;
+    if (!options.model.startsWith("google/") || !sttModel.startsWith("google/")) {
       throw new Error("Only google/ models may be used through OpenRouter.");
     }
     this.model = options.model;
+    this.sttModel = sttModel;
   }
 
   buildBody<T>(request: StructuredRequest<T>) {
+    const userContent = request.audio
+      ? [
+          { type: "text", text: request.prompt },
+          { type: "input_audio", input_audio: { data: request.audio.data, format: request.audio.format } },
+        ]
+      : request.prompt;
     return {
-      model: this.model,
+      model: request.audio ? this.sttModel : this.model,
       messages: [
         { role: "system", content: request.system },
-        { role: "user", content: request.prompt },
+        { role: "user", content: userContent },
       ],
       response_format: {
         type: "json_schema",
         json_schema: { name: request.feature, strict: true, schema: request.jsonSchema },
       },
       provider: { only: [...GOOGLE_PROVIDERS], allow_fallbacks: false, require_parameters: true },
-      reasoning: { effort: this.options.reasoningEffort },
+      reasoning: { effort: request.reasoningEffort ?? this.options.reasoningEffort },
       max_tokens: request.maxTokens,
     };
   }

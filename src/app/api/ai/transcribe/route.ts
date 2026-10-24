@@ -47,7 +47,8 @@ export async function POST(request: Request) {
   let allowed: boolean;
   try {
     allowed = await viewer.db.rpc<boolean>("consume_ai_quota", { p_feature: "voice_transcription" });
-  } catch {
+  } catch (error) {
+    console.error("[ai/transcribe] quota check failed", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "Please try again." }, { status: 500 });
   }
   if (!allowed) {

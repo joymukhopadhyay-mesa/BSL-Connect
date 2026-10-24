@@ -71,6 +71,12 @@ test("record, stop, and the transcript is appended to existing text and stays ed
   await expect(mic).toBeVisible();
   const box = await mic.boundingBox();
   expect(box!.height).toBeGreaterThanOrEqual(44);
+  expect(box!.width).toBeGreaterThanOrEqual(44);
+  // Icon only (no visible text), on the same line as "Improve with AI".
+  await expect(mic).toHaveText("");
+  const improve = await mic.locator("..").getByRole("button", { name: "Improve with AI" }).boundingBox();
+  expect(Math.abs(box!.y + box!.height / 2 - (improve!.y + improve!.height / 2))).toBeLessThan(6);
+  expect(improve!.x).toBeGreaterThan(box!.x + box!.width);
   await noHorizontalOverflow(page);
 
   // First use: the privacy note appears before any recording starts.

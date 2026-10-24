@@ -68,7 +68,7 @@ export function CoachAssist({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className={state.kind === "result" ? "flex basis-full flex-col gap-3" : "flex flex-col gap-3"}>
       {state.kind !== "result" ? (
         <div className="flex flex-wrap items-center gap-3">
           <button

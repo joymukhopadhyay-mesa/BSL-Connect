@@ -70,7 +70,8 @@ function TextBlock({
           />
         )}
       </Field>
-      <VoiceInput label={label} value={value} max={max} onChange={(v) => set(field, v as never)} aiAvailable={aiAvailable} />
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <VoiceInput label={label} value={value} max={max} onChange={(v) => set(field, v as never)} aiAvailable={aiAvailable} />
       {coach ? (
         <CoachAssist
           field={coach}
@@ -89,6 +90,7 @@ function TextBlock({
           }
         />
       ) : null}
+      </div>
     </div>
   );
 }
@@ -293,6 +295,7 @@ export function QuestionnaireStep({ draft, set, errors, aiAvailable }: StepProps
                 value={notes[question.key] ?? ""}
                 onChange={(e) => setNote(question.key, e.target.value)}
               />
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <VoiceInput
                 label={`Note on ${question.dimension.toLowerCase()}`}
                 value={notes[question.key] ?? ""}
@@ -300,6 +303,7 @@ export function QuestionnaireStep({ draft, set, errors, aiAvailable }: StepProps
                 onChange={(v) => setNote(question.key, v)}
                 aiAvailable={aiAvailable}
               />
+              </div>
             </>
           ) : (
             <button

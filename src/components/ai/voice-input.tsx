@@ -269,18 +269,21 @@ export function VoiceInput({
       ? "Turning your recording into text"
       : `Dictate your answer by voice: ${label}`;
 
+  // Renders as children of the parent's flex-wrap row, so the mic sits next to
+  // the "Improve with AI" button; notes and messages wrap to their own line.
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <button
+    <>
+      <button
           type="button"
           onClick={onPress}
           ref={buttonRef}
+          title={recording ? "Tap to finish" : "Speak your answer"}
           aria-disabled={busy || state.kind === "consent" || undefined}
           aria-label={accessibleName}
           aria-busy={busy || undefined}
           className={
-            "relative inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors " +
+            "relative inline-flex size-11 shrink-0 items-center justify-center gap-2 rounded-full border text-sm font-medium transition-colors " +
+            (recording ? "w-auto px-4 " : "") +
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest-600 aria-disabled:opacity-60 " +
             (recording
               ? "border-danger bg-danger-soft text-danger"
@@ -295,11 +298,8 @@ export function VoiceInput({
           ) : busy ? (
             <Loader2 className="size-4 motion-safe:animate-spin" aria-hidden />
           ) : (
-            <Mic className="size-4" aria-hidden />
+            <Mic className="size-5" aria-hidden />
           )}
-          <span aria-hidden>
-            {recording ? "Tap to finish" : state.kind === "transcribing" ? "Writing it down…" : state.kind === "starting" ? "Starting…" : "Speak your answer"}
-          </span>
           {recording ? (
             <span aria-hidden className="tabular-nums" data-testid="voice-timer">
               {formatClock(elapsed)} / {formatClock(MAX_RECORDING_SECONDS)}
@@ -315,10 +315,9 @@ export function VoiceInput({
             Cancel
           </button>
         ) : null}
-      </div>
 
       {state.kind === "consent" ? (
-        <div className="rounded-2xl border border-sage-300 bg-sage-100/70 p-3" role="group" aria-label="About voice dictation">
+        <div className="order-last basis-full rounded-2xl border border-sage-300 bg-sage-100/70 p-3" role="group" aria-label="About voice dictation">
           <p className="text-sm leading-relaxed text-ink">
             Your recording is sent to our AI provider to be turned into text, and it isn&apos;t stored. You can edit the text before you
             continue.
@@ -347,13 +346,16 @@ export function VoiceInput({
       ) : null}
 
       {message ? (
-        <p className={message.tone === "error" ? "text-sm text-danger" : "text-sm text-ink-muted"} role={message.tone === "error" ? "alert" : undefined}>
+        <p
+          className={"order-last basis-full text-sm " + (message.tone === "error" ? "text-danger" : "text-ink-muted")}
+          role={message.tone === "error" ? "alert" : undefined}
+        >
           {message.text}
         </p>
       ) : null}
       <p className="sr-only" role="status" aria-live="polite">
         {message?.tone === "error" ? "" : announce}
       </p>
-    </div>
+    </>
   );
 }

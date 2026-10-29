@@ -42,6 +42,7 @@ src/app/api/              photo upload, AI coach, AI pair explanation, voice tra
 | `staff_allowlist` | coordinator emails allowed to sign up as admins | nobody via API | database owner only |
 | `profiles` | one row per student; all profile content | self; admins; active students (published + not suspended); matched participants | self (column-level grant), trigger-validated |
 | `profile_photos` | the single photo per student (PK = user id) | anyone who can read the profile | `upload_profile_photo`, `admin_remove_photo` |
+| `problem_statements` | company problem statement catalogue (mirrors `src/lib/profile/problem-statements.ts`); students rank three in `profiles.problem_statements`, validated and locked after the deadline by `bsl_profiles_problem_statements` | authenticated users | migrations only |
 | `moderation_state` | suspension + reason | admins | `admin_set_suspension` |
 | `likes` | private one-way interest | the liker only | `record_decision` |
 | `passes` | private passes | the actor only | `record_decision`, `reconsider_pass` |

@@ -33,6 +33,8 @@ export type Profile = {
   partner_industries: string[];
   partner_qualities: string[];
   partner_success: string | null;
+  /** Problem statement ids in priority order (index 0 = first choice). */
+  problem_statements: string[];
   photo_path: string | null;
   photo_confirmed: boolean;
   photo_updated_at: string | null;

@@ -4,6 +4,7 @@ import { ChevronDown, Eye } from "lucide-react";
 import { useState } from "react";
 import { CoachAssist } from "@/components/ai/coach-assist";
 import { VoiceInput } from "@/components/ai/voice-input";
+import { ProblemStatementPicker } from "@/components/problem-statements/picker";
 import { Chip, TagPicker } from "@/components/ui/chips";
 import { ChoiceGroup } from "@/components/ui/choice";
 import { Field, Input, Textarea } from "@/components/ui/field";
@@ -11,6 +12,7 @@ import { Notice } from "@/components/ui/misc";
 import type { CoachField } from "@/lib/ai/coach";
 import {
   careerObjectiveLabel, careerObjectiveLabels, CAREER_OBJECTIVES, INDUSTRIES, MAX_CAREER_OBJECTIVES, MAX_CAREER_OBJECTIVE_LENGTH, PARTNER_QUALITIES, QUESTIONS, SKILL_SUGGESTIONS, type QuestionKey } from "@/lib/profile/options";
+import { PROBLEM_STATEMENT_DEADLINE_LABEL, problemStatementsLocked } from "@/lib/profile/problem-statements";
 import type { Profile, Questionnaire } from "@/lib/profile/types";
 
 export type Draft = Profile;
@@ -316,6 +318,31 @@ export function QuestionnaireStep({ draft, set, errors, aiAvailable }: StepProps
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+export function ProblemStatementsStep({ draft, set, errors }: StepProps) {
+  // Locked once a full ranking was saved before the deadline passed.
+  const [locked] = useState(() => problemStatementsLocked(draft.problem_statements));
+  return (
+    <div className="flex flex-col gap-5">
+      {locked ? (
+        <Notice tone="info" title="Selections have closed">
+          Problem statement choices closed on {PROBLEM_STATEMENT_DEADLINE_LABEL}. Contact the programme team if your ranking needs to change.
+        </Notice>
+      ) : (
+        <p className="text-sm leading-relaxed text-ink-muted">
+          Open each PDF before you rank. Your choices appear on your profile, and classmates can filter by them. Choose by{" "}
+          {PROBLEM_STATEMENT_DEADLINE_LABEL}.
+        </p>
+      )}
+      <ProblemStatementPicker
+        value={draft.problem_statements}
+        onChange={(v) => set("problem_statements", v)}
+        disabled={locked}
+        error={errors.problem_statements}
+      />
     </div>
   );
 }

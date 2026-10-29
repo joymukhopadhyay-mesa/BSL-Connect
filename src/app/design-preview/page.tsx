@@ -3,11 +3,14 @@ import { notFound } from "next/navigation";
 import { DiscoveryDeck } from "@/components/discover/deck";
 import { OnboardingWizard } from "@/components/onboarding/wizard";
 import { CompatibilityPanel } from "@/components/matching/compatibility-panel";
+import { ProblemStatementPrompt } from "@/components/problem-statements/selection-prompt";
 import { ProfileDetail } from "@/components/profile/profile-detail";
+import { DeadlineTicker } from "@/components/shell/deadline-ticker";
 import { StudentNav } from "@/components/shell/student-nav";
 import { SectionCard } from "@/components/ui/misc";
 import { pairInsights } from "@/lib/matching/insights";
 import { rankCandidates, scoreCompatibility } from "@/lib/matching/scoring";
+import { LAST_STEP } from "@/lib/profile/schema";
 import { SAMPLE_CANDIDATES, SAMPLE_ME } from "./sample";
 
 export const metadata = { title: "Design preview" };
@@ -31,18 +34,19 @@ export default async function DesignPreview({ searchParams }: PageProps<"/design
     <div className="min-h-dvh">
       <div className="sticky top-0 z-50 flex flex-wrap items-center justify-center gap-3 bg-amber-soft px-4 py-1.5 text-xs font-medium text-amber">
         Design preview — fictional sample data, not real students. Actions are not connected.
-        {["discover", "profile", "onboarding"].map((v) => (
+        {["discover", "profile", "onboarding", "selection"].map((v) => (
           <Link key={v} href={`/design-preview?view=${v}`} className="underline">
             {v}
           </Link>
         ))}
       </div>
       {view === "onboarding" ? (
-        <OnboardingWizard initialProfile={{ ...SAMPLE_ME, status: "draft", onboarding_step: 8 }} initialPhotoUrl={null} initialStep={Math.min(8, Math.max(1, step))} aiAvailable={sp.ai !== "off"} />
+        <OnboardingWizard initialProfile={{ ...SAMPLE_ME, status: "draft", onboarding_step: LAST_STEP }} initialPhotoUrl={null} initialStep={Math.min(LAST_STEP, Math.max(1, step))} aiAvailable={sp.ai !== "off"} showDeadline />
       ) : (
         <>
           <StudentNav openMatches={1} partnered={false} />
-          <main className="mx-auto max-w-6xl px-4 pt-5 pb-nav sm:px-6 md:pt-8 md:pb-16">
+          <main className="mx-auto max-w-6xl px-4 pt-5 pb-nav sm:px-6 md:pt-8 md:pb-[calc(4rem+var(--ticker-height))]">
+            {view === "selection" ? <ProblemStatementPrompt initial={[]} published /> : null}
             {view === "profile" ? (
               <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
                 <div className="surface rounded-[var(--radius-card)] p-5 shadow-soft sm:p-8">
@@ -53,9 +57,10 @@ export default async function DesignPreview({ searchParams }: PageProps<"/design
                 </SectionCard>
               </div>
             ) : (
-              <DiscoveryDeck initialCandidates={candidates} myPhotoUrl={null} myName={SAMPLE_ME.full_name} aiAvailable={false} />
+              <DiscoveryDeck initialCandidates={candidates} myPhotoUrl={null} myName={SAMPLE_ME.full_name} myStatements={SAMPLE_ME.problem_statements} aiAvailable={false} />
             )}
           </main>
+          <DeadlineTicker className="fixed inset-x-0 bottom-[calc(var(--nav-height)+var(--safe-bottom))] z-30 md:bottom-0" />
         </>
       )}
     </div>

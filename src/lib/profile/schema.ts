@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { INDUSTRIES, MAX_CAREER_OBJECTIVES, MAX_CAREER_OBJECTIVE_LENGTH, PARTNER_QUALITIES, QUESTIONS, QUESTION_KEYS } from "./options";
+import { PROBLEM_STATEMENT_PICKS, PROBLEM_STATEMENTS } from "./problem-statements";
 
 /**
  * Server-side validation for each onboarding step. Drafts may be saved with
@@ -137,6 +138,23 @@ export const partnerSchema = z.object({
   partner_success: optionalText(700),
 });
 
+const PROBLEM_STATEMENT_IDS = PROBLEM_STATEMENTS.map((s) => s.id) as [string, ...string[]];
+
+/** Ranked picks, first choice first. Drafts may hold fewer than three. */
+export const problemStatementsSchema = z.object({
+  problem_statements: z
+    .array(z.enum(PROBLEM_STATEMENT_IDS, { message: "Choose from the list." }))
+    .max(PROBLEM_STATEMENT_PICKS)
+    .refine((a) => new Set(a).size === a.length, { message: "Choose three different problem statements." }),
+});
+
+/** The mandatory selection prompt saves all three at once. */
+export const problemStatementPicksSchema = z.object({
+  problem_statements: problemStatementsSchema.shape.problem_statements.refine((a) => a.length === PROBLEM_STATEMENT_PICKS, {
+    message: `Choose ${PROBLEM_STATEMENT_PICKS} problem statements.`,
+  }),
+});
+
 export const publishSchema = z.object({
   details_confirmed: z.literal(true, { message: "Confirm that your details are accurate." }),
   photo_confirmed: z.literal(true, { message: "Confirm that your photo depicts you." }),
@@ -152,6 +170,7 @@ export const STEP_SCHEMAS = {
   4: industriesSchema,
   5: questionnaireStepSchema,
   6: partnerSchema,
+  7: problemStatementsSchema,
 } as const;
 
 export type EditableStep = keyof typeof STEP_SCHEMAS;
@@ -167,8 +186,12 @@ export const ONBOARDING_STEPS = [
   { step: 4, title: "Industries", short: "Industries" },
   { step: 5, title: "How you work", short: "Working style" },
   { step: 6, title: "Your ideal partner", short: "Preferences" },
-  { step: 7, title: "Profile photo", short: "Photo" },
-  { step: 8, title: "Review and publish", short: "Review" },
+  { step: 7, title: "Problem statements", short: "Problem statements" },
+  { step: 8, title: "Profile photo", short: "Photo" },
+  { step: 9, title: "Review and publish", short: "Review" },
 ] as const;
+
+export const LAST_STEP = ONBOARDING_STEPS.length;
+export const PHOTO_STEP = 8;
 
 export { QUESTION_KEYS };

@@ -117,6 +117,7 @@ export async function completeProfile(db: Db, userId: string, opts: { publish?: 
        development_areas = array['Finance'], development_current = 'Financial modelling.',
        industries_interest = array['Fintech and financial services'], industries_experience = array['Consulting'],
        questionnaire = $3::jsonb, partner_skills = array['Finance'], partner_qualities = array['Reliable'],
+       problem_statements = array['pocketfm', 'technosport-1', 'sortment'],
        photo_path = $1, photo_confirmed = true, details_confirmed = true, visibility_acknowledged = true
      where id = $4`,
     [`${userId}/avatar`, opts.name ?? "Student", JSON.stringify(completeAnswers), userId],

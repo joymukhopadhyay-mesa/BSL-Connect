@@ -5,7 +5,7 @@ import { z } from "zod";
 import { errorCodeFrom, friendlyError } from "@/lib/errors";
 import { normalizeProfile } from "@/lib/data/profiles";
 import { requireStudent, type Viewer } from "@/lib/data/session";
-import { isEditableStep, publishSchema, STEP_SCHEMAS } from "@/lib/profile/schema";
+import { isEditableStep, LAST_STEP, problemStatementPicksSchema, publishSchema, STEP_SCHEMAS } from "@/lib/profile/schema";
 import type { Profile } from "@/lib/profile/types";
 
 export type SaveResult =
@@ -18,7 +18,7 @@ const WRITABLE = new Set([
   "intro", "strengths", "strengths_good_at", "strengths_problems",
   "strengths_example", "development_areas", "development_current", "development_complement",
   "development_help", "industries_experience", "industries_experience_detail", "industries_interest",
-  "questionnaire", "partner_skills", "partner_industries", "partner_qualities", "partner_success",
+  "questionnaire", "partner_skills", "partner_industries", "partner_qualities", "partner_success", "problem_statements",
   "photo_confirmed", "details_confirmed", "visibility_acknowledged", "onboarding_step", "status",
 ]);
 
@@ -71,7 +71,7 @@ export async function saveProfileStep(step: number, input: unknown, advance: boo
       [viewer.id],
     );
     const currentStep = Number(current?.onboarding_step ?? 1);
-    const nextStep = advance ? Math.min(8, Math.max(currentStep, step + 1)) : currentStep;
+    const nextStep = advance ? Math.min(LAST_STEP, Math.max(currentStep, step + 1)) : currentStep;
     const profile = await updateOwnProfile(viewer, { ...parsed.data, onboarding_step: nextStep });
     revalidatePath("/me");
     return { ok: true, profile };
@@ -82,6 +82,26 @@ export async function saveProfileStep(step: number, input: unknown, advance: boo
         error: "Your profile is published, so required fields can't be left empty. Fill them in or unpublish first.",
       };
     }
+    return { ok: false, error: friendlyError(error) };
+  }
+}
+
+/**
+ * The mandatory selection prompt for students who published before problem
+ * statements existed: all three picks, saved together. The database checks
+ * the ids and refuses changes to a full ranking after the deadline.
+ */
+export async function saveProblemStatements(input: unknown): Promise<SaveResult> {
+  const viewer = await requireStudent();
+  const parsed = problemStatementPicksSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Choose three different problem statements.", fieldErrors: fieldErrorsFrom(parsed.error) };
+  }
+  try {
+    const profile = await updateOwnProfile(viewer, parsed.data);
+    revalidatePath("/", "layout");
+    return { ok: true, profile };
+  } catch (error) {
     return { ok: false, error: friendlyError(error) };
   }
 }

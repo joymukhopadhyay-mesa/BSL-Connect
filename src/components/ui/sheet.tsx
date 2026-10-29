@@ -18,6 +18,7 @@ export function Sheet({
   footer,
   size = "md",
   hideTitle,
+  dismissible = true,
 }: {
   open: boolean;
   onClose: () => void;
@@ -27,6 +28,8 @@ export function Sheet({
   footer?: ReactNode;
   size?: "sm" | "md" | "lg";
   hideTitle?: boolean;
+  /** false for a mandatory step: no close button, and Escape / backdrop clicks do nothing. */
+  dismissible?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -51,15 +54,21 @@ export function Sheet({
     <dialog
       ref={ref}
       onClose={() => {
+        // Browsers may close a dialog on Escape even when cancel is prevented
+        // (e.g. without a recent user gesture); a mandatory sheet reopens.
+        if (!dismissible && open) {
+          ref.current?.showModal();
+          return;
+        }
         document.documentElement.style.overflow = "";
         onClose();
       }}
       onCancel={(e) => {
         e.preventDefault();
-        onClose();
+        if (dismissible) onClose();
       }}
       onClick={(e) => {
-        if (e.target === ref.current) onClose();
+        if (dismissible && e.target === ref.current) onClose();
       }}
       aria-labelledby={titleId}
       className={cn(
@@ -81,14 +90,16 @@ export function Sheet({
               </h2>
               {description ? <div className="mt-1 text-sm leading-relaxed text-ink-muted">{description}</div> : null}
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="ml-auto inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-ivory-200/70 text-ink transition hover:bg-ivory-200"
-              aria-label="Close"
-            >
-              <X className="size-5" />
-            </button>
+            {dismissible ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="ml-auto inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-ivory-200/70 text-ink transition hover:bg-ivory-200"
+                aria-label="Close"
+              >
+                <X className="size-5" />
+              </button>
+            ) : null}
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-4 pb-6 sm:px-7">{children}</div>
           {footer ? (

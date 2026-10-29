@@ -42,7 +42,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext value={api}>
       {children}
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--nav-height)+var(--safe-bottom)+0.75rem)] z-[60] flex flex-col items-center gap-2 px-4 md:bottom-6"
+        className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--nav-height)+var(--safe-bottom)+var(--ticker-height)+0.75rem)] z-[60] flex flex-col items-center gap-2 px-4 md:bottom-[calc(var(--ticker-height)+1.5rem)]"
         aria-live="polite"
         role="status"
       >

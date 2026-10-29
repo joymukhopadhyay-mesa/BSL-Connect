@@ -28,12 +28,13 @@ const base: Omit<Profile, "id" | "full_name"> = {
   partner_industries: [],
   partner_qualities: [],
   partner_success: null,
+  problem_statements: [],
   photo_path: null,
   photo_confirmed: true,
   photo_updated_at: null,
   details_confirmed: true,
   visibility_acknowledged: true,
-  onboarding_step: 8,
+  onboarding_step: 9,
   status: "published",
   published_at: null,
   version: 1,
@@ -58,6 +59,7 @@ export const SAMPLE_ME: Profile = {
   industries_interest: ["Consumer technology", "Fintech and financial services"],
   partner_skills: ["Finance", "Data analytics"],
   partner_qualities: ["Reliable", "Organised"],
+  problem_statements: ["pocketfm", "technosport-2", "kuku-1"],
   questionnaire: {
     answers: {
       working_style: "exploratory", decision_making: ["discussion"], communication: "adaptive", ownership: "mixed",
@@ -88,6 +90,7 @@ export const SAMPLE_CANDIDATES: Profile[] = [
     partner_skills: ["Marketing", "Research"],
     partner_qualities: ["Curious", "Proactive communicator"],
     partner_success: "Sample text.",
+    problem_statements: ["technosport-2", "powerup-money", "even"],
     questionnaire: {
       answers: {
         working_style: "structured", decision_making: ["data"], communication: "direct", ownership: "independent",
@@ -110,6 +113,7 @@ export const SAMPLE_CANDIDATES: Profile[] = [
     industries_experience: ["E-commerce"],
     industries_interest: ["Consumer technology"],
     partner_skills: ["Strategy"],
+    problem_statements: ["pocketfm", "shopos-1", "zylabs-ai"],
     questionnaire: { answers: { working_style: "balanced", communication: "adaptive", ownership: "mixed", conflict: "find_common_ground", feedback: ["direct_immediate"], execution: "depends" } },
   },
 ];

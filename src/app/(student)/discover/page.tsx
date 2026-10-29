@@ -20,6 +20,7 @@ export default async function DiscoverPage() {
       initialCandidates={candidates}
       myPhotoUrl={me.photo_url}
       myName={me.full_name}
+      myStatements={me.problem_statements}
       aiAvailable={getAIStatus().available}
     />
   );

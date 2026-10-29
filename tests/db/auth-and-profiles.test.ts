@@ -217,6 +217,74 @@ describe("profile photo access", () => {
   });
 });
 
+describe("problem statements", () => {
+  const ranked = (id: string) =>
+    db.query<{ problem_statements: string[]; onboarding_step: number; status: string }>(
+      "select problem_statements, onboarding_step, status from public.profiles where id = $1", [id]);
+  const setPicks = (id: string, picks: string[]) =>
+    asUser(db, id, () => db.query("update public.profiles set problem_statements = $2 where id = $1", [id, picks]));
+
+  it("the database catalogue matches the app's", async () => {
+    const { PROBLEM_STATEMENTS } = await import("../../src/lib/profile/problem-statements");
+    const reader = await createStudent(db);
+    const rows = await asUser(db, reader, () =>
+      db.query<{ id: string; name: string; company: string; sector: string; focus: string; pdf_url: string }>(
+        "select id, name, company, sector, focus, pdf_url from public.problem_statements order by sort_order"));
+    expect(rows.rows).toEqual(PROBLEM_STATEMENTS.map((s) => ({ id: s.id, name: s.name, company: s.company, sector: s.sector, focus: s.focus, pdf_url: s.pdfUrl })));
+  });
+
+  it("three distinct catalogue picks are required to publish", async () => {
+    const id = await createUser(db);
+    await completeProfile(db, id, { publish: false });
+    await setPicks(id, ["pocketfm", "sortment"]);
+    expect(await errorCode(asUser(db, id, () => db.query("update public.profiles set status = 'published' where id = $1", [id]))))
+      .toContain("PROFILE_INCOMPLETE");
+    expect(await errorCode(setPicks(id, ["pocketfm", "pocketfm", "sortment"]))).toContain("INVALID_PROBLEM_STATEMENT");
+    expect(await errorCode(setPicks(id, ["pocketfm", "made-up", "sortment"]))).toContain("INVALID_PROBLEM_STATEMENT");
+    expect(await errorCode(setPicks(id, ["pocketfm", "sortment", "even", "apna"]))).toMatch(/check constraint/);
+    await setPicks(id, ["even", "pocketfm", "sortment"]);
+    await asUser(db, id, () => db.query("update public.profiles set status = 'published' where id = $1", [id]));
+    expect((await ranked(id)).rows[0]).toMatchObject({ problem_statements: ["even", "pocketfm", "sortment"], status: "published" });
+  });
+
+  it("a profile published before picks existed stays published, and must choose before other edits", async () => {
+    const id = await createStudent(db);
+    await db.exec("set session_replication_role = replica");
+    await db.query("update public.profiles set problem_statements = '{}' where id = $1", [id]);
+    await db.exec("set session_replication_role = default");
+    expect((await ranked(id)).rows[0]!.status).toBe("published");
+    expect(await errorCode(asUser(db, id, () => db.query("update public.profiles set intro = 'New intro' where id = $1", [id]))))
+      .toContain("PROFILE_INCOMPLETE");
+    await setPicks(id, ["kuku-1", "kuku-2", "apna"]);
+    await asUser(db, id, () => db.query("update public.profiles set intro = 'New intro' where id = $1", [id]));
+  });
+
+  it("a full ranking is locked after the deadline; a first choice is still allowed", async () => {
+    const full = await createStudent(db);
+    const late = await createUser(db);
+    await completeProfile(db, late, { publish: false });
+    await db.query("update public.profiles set problem_statements = '{}' where id = $1", [late]);
+    await db.exec("create or replace function private.problem_statement_deadline() returns timestamptz language sql stable set search_path = '' as $$ select now() - interval '1 day' $$");
+    try {
+      expect(await errorCode(setPicks(full, ["apna", "pocketfm", "sortment"]))).toContain("PROBLEM_STATEMENTS_LOCKED");
+      await setPicks(late, ["apna", "pocketfm", "sortment"]);
+      expect(await errorCode(setPicks(late, ["pocketfm", "apna", "sortment"]))).toContain("PROBLEM_STATEMENTS_LOCKED");
+      expect(await errorCode(setPicks(late, []))).toContain("PROBLEM_STATEMENTS_LOCKED");
+      // Unrelated edits still work.
+      await asUser(db, full, () => db.query("update public.profiles set intro = 'Still editable' where id = $1", [full]));
+    } finally {
+      await db.exec("create or replace function private.problem_statement_deadline() returns timestamptz language sql stable set search_path = '' as $$ select timestamptz '2026-11-01 00:00:00+05:30' $$");
+    }
+  });
+
+  it("removing a photo sends the student back to the photo step (now step 8)", async () => {
+    const admin = await createAdmin(db);
+    const id = await createStudent(db);
+    await rpc(db, admin, "admin_remove_photo", [id, "Photo does not depict the student"]);
+    expect((await ranked(id)).rows[0]).toMatchObject({ onboarding_step: 8, status: "draft" });
+  });
+});
+
 describe("career objectives", () => {
   it("are required to publish, accept several entries, and enforce the limits", async () => {
     const id = await createUser(db);

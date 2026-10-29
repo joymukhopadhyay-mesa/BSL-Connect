@@ -1,4 +1,5 @@
 import { QUESTION_KEYS } from "./options";
+import { PROBLEM_STATEMENT_PICKS } from "./problem-statements";
 import type { Profile } from "./types";
 
 /**
@@ -11,7 +12,7 @@ export type CompletionInput = Pick<
   Profile,
   | "full_name" | "role_title" | "background" | "career_objectives" | "intro" | "strengths"
   | "strengths_good_at" | "development_areas" | "development_current" | "industries_interest"
-  | "questionnaire" | "partner_skills" | "partner_qualities" | "photo_path" | "photo_confirmed"
+  | "questionnaire" | "partner_skills" | "partner_qualities" | "problem_statements" | "photo_path" | "photo_confirmed"
   | "details_confirmed" | "visibility_acknowledged"
 >;
 
@@ -38,6 +39,7 @@ export function missingFields(p: CompletionInput): string[] {
   }
   if (empty(p.partner_skills)) missing.push("partner_skills");
   if (empty(p.partner_qualities)) missing.push("partner_qualities");
+  if ((p.problem_statements?.length ?? 0) < PROBLEM_STATEMENT_PICKS) missing.push("problem_statements");
   if (!p.photo_path) missing.push("photo");
   if (!p.photo_confirmed) missing.push("photo_confirmed");
   if (!p.details_confirmed) missing.push("details_confirmed");
@@ -52,8 +54,9 @@ export const FIELD_STEP: Record<string, number> = {
   development_areas: 3, development_current: 3,
   industries_interest: 4,
   partner_skills: 6, partner_qualities: 6,
-  photo: 7, photo_confirmed: 7,
-  details_confirmed: 8, visibility_acknowledged: 8,
+  problem_statements: 7,
+  photo: 8, photo_confirmed: 8,
+  details_confirmed: 9, visibility_acknowledged: 9,
 };
 
 export function stepForField(field: string): number {
@@ -67,7 +70,7 @@ export function stepIsComplete(step: number, p: CompletionInput): boolean {
 
 /** 0–100, counting the confirmation step only once everything else is done. */
 export function completionPercent(p: CompletionInput): number {
-  const totalRequired = 10 + QUESTION_KEYS.length + 2 + 2 + 2;
+  const totalRequired = 10 + QUESTION_KEYS.length + 2 + 1 + 2 + 2;
   return Math.round(((totalRequired - missingFields(p).length) / totalRequired) * 100);
 }
 
@@ -84,6 +87,7 @@ export const FIELD_LABELS: Record<string, string> = {
   industries_interest: "Industries of interest",
   partner_skills: "Skills you'd like in a partner",
   partner_qualities: "Qualities you value",
+  problem_statements: "Three ranked problem statements",
   photo: "Profile photo",
   photo_confirmed: "Photo confirmation",
   details_confirmed: "Accuracy confirmation",

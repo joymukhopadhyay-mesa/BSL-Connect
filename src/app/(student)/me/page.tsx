@@ -7,6 +7,7 @@ import { Notice, PageHeader, Progress } from "@/components/ui/misc";
 import { getPublicProfile } from "@/lib/data/profiles";
 import { requireStudent } from "@/lib/data/session";
 import { completionPercent, fieldLabel, missingFields, stepForField } from "@/lib/profile/completion";
+import { LAST_STEP } from "@/lib/profile/schema";
 
 export const metadata = { title: "Your profile" };
 
@@ -16,7 +17,7 @@ export default async function MePage() {
   if (!profile) notFound();
   const published = profile.status === "published";
   const missing = missingFields(profile).filter((f) => !["details_confirmed", "visibility_acknowledged"].includes(f));
-  const firstMissingStep = missing.length ? Math.min(...missing.map(stepForField)) : 8;
+  const firstMissingStep = missing.length ? Math.min(...missing.map(stepForField)) : LAST_STEP;
 
   return (
     <div className="mx-auto max-w-3xl">

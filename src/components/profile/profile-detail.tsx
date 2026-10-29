@@ -1,8 +1,10 @@
 import { Briefcase, Compass, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
+import { ProblemStatementPdfLink } from "@/components/problem-statements/pdf-link";
 import { Tag } from "@/components/ui/chips";
 import { ProfilePhoto } from "@/components/ui/misc";
 import { careerObjectiveLabels, optionLabel, QUESTIONS } from "@/lib/profile/options";
+import { problemStatement } from "@/lib/profile/problem-statements";
 import type { Profile } from "@/lib/profile/types";
 
 /**
@@ -55,6 +57,34 @@ export function ProfileDetail({
             <Tags items={careerObjectiveLabels(p.career_objectives)} tone="sage" />
           </Labelled>
         ) : null}
+      </Section>
+
+      <Section title="Problem statements" step={7} editHref={editHref} description="Ranked by preference, 1 being the top choice.">
+        {p.problem_statements.length ? (
+          <ol className="flex flex-col gap-3">
+            {p.problem_statements.map((id, i) => {
+              const s = problemStatement(id);
+              if (!s) return null;
+              return (
+                <li key={id} className="flex gap-3 rounded-2xl border border-line bg-white/60 p-3.5">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-forest-800 text-xs font-semibold text-ivory-50 tabular-nums">
+                    {i + 1}
+                  </span>
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <p className="text-[0.98rem] font-medium leading-snug text-ink">
+                      {s.name}
+                      {s.brief ? <span className="font-normal text-ink-muted"> · {s.brief}</span> : null}
+                    </p>
+                    <p className="text-sm text-ink-muted">{[s.sector, s.model, s.focus].join(" · ")}</p>
+                    <ProblemStatementPdfLink statement={s} className="text-sm" />
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <Muted>Not chosen yet</Muted>
+        )}
       </Section>
 
       <Section title="Strengths" step={2} editHref={editHref}>

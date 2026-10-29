@@ -22,11 +22,13 @@ export function DiscoveryDeck({
   initialCandidates,
   myPhotoUrl,
   myName,
+  myStatements,
   aiAvailable,
 }: {
   initialCandidates: Candidate[];
   myPhotoUrl: string | null;
   myName: string | null;
+  myStatements: string[];
   aiAvailable: boolean;
 }) {
   const router = useRouter();
@@ -157,7 +159,7 @@ export function DiscoveryDeck({
               role="group"
               aria-roledescription="profile card"
               aria-label={`${current.full_name}. Press right arrow if interested, left arrow to pass, Enter to view the full profile.`}
-              className="relative h-[clamp(21rem,calc(100dvh-var(--nav-height)-var(--safe-bottom)-var(--safe-top)-15rem),38rem)] w-full rounded-[var(--radius-card)] outline-none focus-visible:ring-4 focus-visible:ring-forest-600/30 md:h-[36rem]"
+              className="relative h-[clamp(21rem,calc(100dvh-var(--nav-height)-var(--ticker-height)-var(--safe-bottom)-var(--safe-top)-15rem),38rem)] w-full rounded-[var(--radius-card)] outline-none focus-visible:ring-4 focus-visible:ring-forest-600/30 md:h-[36rem]"
             >
               {next ? (
                 <div className="absolute inset-0 scale-[0.95] translate-y-3 opacity-70 transition-transform duration-300" aria-hidden>
@@ -269,7 +271,7 @@ export function DiscoveryDeck({
         </div>
       )}
 
-      <FiltersSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} candidates={queue} value={filters} onChange={setFilters} />
+      <FiltersSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} candidates={queue} value={filters} onChange={setFilters} myStatements={myStatements} />
 
       <Sheet
         open={Boolean(detail)}

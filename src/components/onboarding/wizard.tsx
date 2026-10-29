@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { publishProfile, saveProfileStep } from "@/app/onboarding/actions";
 import { ProfileDetail } from "@/components/profile/profile-detail";
+import { DeadlineTicker } from "@/components/shell/deadline-ticker";
 import { PhotoUploader } from "@/components/profile/photo-uploader";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { cn } from "@/components/ui/cn";
@@ -12,10 +13,10 @@ import { Checkbox } from "@/components/ui/field";
 import { Notice, Progress, Wordmark } from "@/components/ui/misc";
 import { useToast } from "@/components/ui/toast";
 import { completionPercent, fieldLabel, missingFields, stepForField } from "@/lib/profile/completion";
-import { ONBOARDING_STEPS } from "@/lib/profile/schema";
+import { LAST_STEP, ONBOARDING_STEPS, PHOTO_STEP } from "@/lib/profile/schema";
 import type { Profile } from "@/lib/profile/types";
 import {
-  BasicsStep, DevelopmentStep, IndustriesStep, PartnerStep, QuestionnaireStep, StrengthsStep, type Draft, type StepProps,
+  BasicsStep, DevelopmentStep, IndustriesStep, PartnerStep, ProblemStatementsStep, QuestionnaireStep, StrengthsStep, type Draft, type StepProps,
 } from "./step-forms";
 
 const STEP_FIELDS: Record<number, Array<keyof Profile>> = {
@@ -25,6 +26,7 @@ const STEP_FIELDS: Record<number, Array<keyof Profile>> = {
   4: ["industries_experience", "industries_experience_detail", "industries_interest"],
   5: ["questionnaire"],
   6: ["partner_skills", "partner_industries", "partner_qualities", "partner_success"],
+  7: ["problem_statements"],
 };
 
 const INTROS: Record<number, string> = {
@@ -34,8 +36,9 @@ const INTROS: Record<number, string> = {
   4: "Where you've been, and where you'd like to go. These are kept separate.",
   5: "Ten quick questions about how you like to work.",
   6: "Describe the partner who would complement you.",
-  7: "One clear photo, so classmates recognise you.",
-  8: "Here's how your profile will appear to your cohort.",
+  7: "Rank the three company problem statements you'd most like to work on, 1 being your top choice.",
+  8: "One clear photo, so classmates recognise you.",
+  9: "Here's how your profile will appear to your cohort.",
 };
 
 export function OnboardingWizard({
@@ -43,11 +46,13 @@ export function OnboardingWizard({
   initialPhotoUrl,
   initialStep,
   aiAvailable,
+  showDeadline = false,
 }: {
   initialProfile: Profile;
   initialPhotoUrl: string | null;
   initialStep: number;
   aiAvailable: boolean;
+  showDeadline?: boolean;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -168,7 +173,7 @@ export function OnboardingWizard({
   const meta = ONBOARDING_STEPS[step - 1]!;
 
   return (
-    <div className="min-h-dvh pb-[calc(6.5rem+var(--safe-bottom))]">
+    <div className="min-h-dvh pb-[calc(6.5rem+var(--safe-bottom)+var(--ticker-height))]">
       <header className="glass sticky top-0 z-30 border-x-0 border-t-0 border-b-line pt-[var(--safe-top)]">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-4 px-4">
           <Wordmark />
@@ -215,7 +220,7 @@ export function OnboardingWizard({
 
         <div key={step} className="animate-rise">
           <p className="text-sm font-medium text-forest-600">
-            {editing ? "Editing your profile" : `Step ${step} of 8`}
+            {editing ? "Editing your profile" : `Step ${step} of ${LAST_STEP}`}
           </p>
           <h1 ref={headingRef} tabIndex={-1} className="mt-1 font-display text-[2.5rem] leading-[1.02] text-forest-900 outline-none sm:text-[3rem]">
             {meta.title}
@@ -229,7 +234,8 @@ export function OnboardingWizard({
             {step === 4 && <IndustriesStep {...stepProps} />}
             {step === 5 && <QuestionnaireStep {...stepProps} />}
             {step === 6 && <PartnerStep {...stepProps} />}
-            {step === 7 && (
+            {step === 7 && <ProblemStatementsStep {...stepProps} />}
+            {step === PHOTO_STEP && (
               <PhotoUploader
                 currentUrl={photoUrl}
                 name={draft.full_name}
@@ -242,7 +248,7 @@ export function OnboardingWizard({
                 }}
               />
             )}
-            {step === 8 && (
+            {step === LAST_STEP && (
               <ReviewStep
                 draft={draft}
                 photoUrl={photoUrl}
@@ -264,13 +270,14 @@ export function OnboardingWizard({
       </div>
 
       <footer className="glass fixed inset-x-0 bottom-0 z-30 border-x-0 border-b-0 border-t-line pb-[var(--safe-bottom)]">
+        {showDeadline ? <DeadlineTicker /> : null}
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
           <Button type="button" variant="ghost" onClick={() => save(Math.max(1, step - 1))} disabled={step === 1 || pending} icon={<ArrowLeft className="size-4" />}>
             Back
           </Button>
           {editing ? (
             <div className="flex gap-2">
-              {step < 8 ? (
+              {step < LAST_STEP ? (
                 <Button type="button" variant="secondary" onClick={() => save(step + 1)} disabled={pending}>
                   Next
                 </Button>
@@ -279,9 +286,9 @@ export function OnboardingWizard({
                 Save changes
               </Button>
             </div>
-          ) : step < 8 ? (
-            <Button type="button" onClick={() => save(step + 1)} loading={pending} disabled={step === 7 && !draft.photo_path}>
-              {step === 7 ? "Review profile" : (
+          ) : step < LAST_STEP ? (
+            <Button type="button" onClick={() => save(step + 1)} loading={pending} disabled={step === PHOTO_STEP && !draft.photo_path}>
+              {step === PHOTO_STEP ? "Review profile" : (
                 <>
                   <span className="sm:hidden">Continue</span>
                   <span className="hidden sm:inline">Save and continue</span>

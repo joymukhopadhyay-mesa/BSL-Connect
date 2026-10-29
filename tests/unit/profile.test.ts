@@ -3,7 +3,11 @@ import { toCsv } from "@/lib/csv";
 import { EXPORT_COLUMNS } from "@/lib/export";
 import { validatePhoto, MAX_PHOTO_BYTES } from "@/lib/photo";
 import { completionPercent, missingFields } from "@/lib/profile/completion";
-import { basicsSchema, industriesSchema, publishSchema, questionnaireSchema, strengthsSchema } from "@/lib/profile/schema";
+import { problemStatementsLocked } from "@/lib/profile/problem-statements";
+import {
+  basicsSchema, industriesSchema, problemStatementPicksSchema, problemStatementsSchema, publishSchema, questionnaireSchema, strengthsSchema,
+} from "@/lib/profile/schema";
+import { EMPTY_FILTERS, matchesFilters, type Candidate } from "@/components/discover/types";
 import { createDb } from "../db/harness";
 import { makeProfile } from "./fixtures";
 
@@ -81,6 +85,8 @@ describe("profile completeness", () => {
       makeProfile(),
       makeProfile({ intro: "" }),
       makeProfile({ career_objectives: [] }),
+      makeProfile({ problem_statements: [] }),
+      makeProfile({ problem_statements: ["pocketfm", "sortment"] }),
       makeProfile({ strengths: [], photo_path: null }),
       makeProfile({ questionnaire: { answers: { working_style: "structured" } } }),
       makeProfile({ visibility_acknowledged: false, details_confirmed: false, photo_confirmed: false }),
@@ -97,6 +103,39 @@ describe("profile completeness", () => {
   it("computes progress", () => {
     expect(completionPercent(makeProfile())).toBe(100);
     expect(completionPercent(makeProfile({ intro: null }))).toBeLessThan(100);
+  });
+});
+
+describe("problem statements", () => {
+  it("drafts accept up to three distinct catalogue ids, in order", () => {
+    expect(problemStatementsSchema.parse({ problem_statements: ["kuku-2", "pocketfm"] }).problem_statements).toEqual(["kuku-2", "pocketfm"]);
+    expect(problemStatementsSchema.safeParse({ problem_statements: [] }).success).toBe(true);
+    expect(problemStatementsSchema.safeParse({ problem_statements: ["not-a-company"] }).success).toBe(false);
+    expect(problemStatementsSchema.safeParse({ problem_statements: ["pocketfm", "pocketfm"] }).success).toBe(false);
+    expect(problemStatementsSchema.safeParse({ problem_statements: ["pocketfm", "sortment", "even", "apna"] }).success).toBe(false);
+  });
+
+  it("the mandatory prompt needs exactly three", () => {
+    expect(problemStatementPicksSchema.safeParse({ problem_statements: ["pocketfm", "sortment"] }).success).toBe(false);
+    expect(problemStatementPicksSchema.safeParse({ problem_statements: ["pocketfm", "sortment", "even"] }).success).toBe(true);
+  });
+
+  it("a full ranking locks at the end of 31 October IST", () => {
+    const full = ["pocketfm", "sortment", "even"];
+    expect(problemStatementsLocked(full, new Date("2026-10-31T23:59:00+05:30"))).toBe(false);
+    expect(problemStatementsLocked(full, new Date("2026-11-01T00:00:00+05:30"))).toBe(true);
+    expect(problemStatementsLocked(["pocketfm"], new Date("2026-11-05T00:00:00+05:30"))).toBe(false);
+  });
+
+  it("discovery filters by statement, optionally by the priority given to it", () => {
+    const c = makeProfile({ problem_statements: ["pocketfm", "sortment", "even"] }) as Candidate;
+    const f = (statement: string[], statementRank: string[] = []) => matchesFilters(c, { ...EMPTY_FILTERS, statement, statementRank });
+    expect(f([])).toBe(true);
+    expect(f(["sortment"])).toBe(true);
+    expect(f(["apna"])).toBe(false);
+    expect(f(["sortment"], ["1"])).toBe(false);
+    expect(f(["sortment"], ["1", "2"])).toBe(true);
+    expect(f(["apna", "pocketfm"], ["1"])).toBe(true);
   });
 });
 

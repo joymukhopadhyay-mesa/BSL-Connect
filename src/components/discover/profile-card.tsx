@@ -1,9 +1,10 @@
-import { Briefcase, Sparkles } from "lucide-react";
+import { Briefcase, ClipboardList, Sparkles } from "lucide-react";
 import { BandBadge } from "@/components/matching/compatibility-panel";
 import { Tag } from "@/components/ui/chips";
 import { cn } from "@/components/ui/cn";
 import { ProfilePhoto } from "@/components/ui/misc";
 import { careerObjectiveLabels } from "@/lib/profile/options";
+import { problemStatementName } from "@/lib/profile/problem-statements";
 import type { Candidate } from "./types";
 
 /**
@@ -42,6 +43,15 @@ export function ProfileCard({ candidate, className, priority }: { candidate: Can
           <p className="mt-3 flex items-start gap-1.5 text-xs leading-snug text-white/75 [@media(max-height:700px)]:hidden">
             <Sparkles className="mt-px size-3.5 shrink-0" aria-hidden />
             <span className="line-clamp-1">Exploring {c.industries_interest.slice(0, 2).join(" · ")}</span>
+          </p>
+        ) : null}
+        {c.problem_statements.length ? (
+          <p className="mt-2 flex items-start gap-1.5 text-xs leading-snug text-white/75">
+            <ClipboardList className="mt-px size-3.5 shrink-0" aria-hidden />
+            <span className="line-clamp-1">
+              <span className="sr-only">Problem statements, in priority order: </span>
+              {c.problem_statements.map((id, i) => `#${i + 1} ${problemStatementName(id)}`).join(" · ")}
+            </span>
           </p>
         ) : null}
         {c.career_objectives.length ? <p className="sr-only">Career objectives: {careerObjectiveLabels(c.career_objectives).join(", ")}</p> : null}

@@ -1,7 +1,7 @@
 /**
  * BSL problem statements, from the programme team's "List of Problem
- * Statements" sheet. Mirrored in public.problem_statements (migration
- * 20261029000000_problem_statements.sql); tests/db keeps the two in step.
+ * Statements" sheet. Mirrored in public.problem_statements (migrations
+ * 20261029000000 and 20261031000000); tests/db keeps the two in step.
  * `guidance` is the team's note on who each company is looking for.
  */
 
@@ -66,13 +66,23 @@ export const PROBLEM_STATEMENTS: readonly ProblemStatement[] = [
   { id: "square-yards-1", name: "Square Yards 1", company: "Square Yards", brief: "Brokers", sector: "Real Estate/Home", model: "B2B/B2C", focus: "Product Strategy & Prototype", pdfUrl: "https://drive.google.com/file/d/1ygOJYECBqb-6tM9X1oglVQsnbj6uhNP0/view?usp=drive_link", guidance: null },
   { id: "square-yards-2", name: "Square Yards 2", company: "Square Yards", brief: "Tier 2", sector: "Real Estate/Home", model: "B2B/B2C", focus: "Market & Category Expansion", pdfUrl: "https://drive.google.com/file/d/1PgbRDFn-vkzzQSOnLQ1DN5KiA12wmYzS/view?usp=drive_link", guidance: null },
   { id: "apna", name: "Apna", company: "Apna", brief: null, sector: "HR Tech", model: "B2B/B2C", focus: "Market Research & GTM", pdfUrl: "https://drive.google.com/file/d/1OQ7Lg_Cv5aj6F8VP6WfGAvhorqBeOFRs/view?usp=drive_link", guidance: null },
+  { id: "emergent", name: "Emergent", company: "Emergent", brief: null, sector: "AI", model: "B2C", focus: "New Segments & Channels", pdfUrl: "https://drive.google.com/file/d/19aqr5sNCW12mw0TLgnXHV177IMDOC75c/view?usp=drive_link", guidance: null },
+  { id: "gain", name: "Gain", company: "Gain", brief: null, sector: "Fintech", model: "B2B", focus: "Customer Growth & Retention", pdfUrl: "https://drive.google.com/file/d/1RVcXgfH1yXX5JzqdBYIJI7y-QGaRXl_v/view?usp=drive_link", guidance: null },
+  { id: "gostops", name: "GoStops", company: "GoStops", brief: null, sector: "Travel", model: "B2C", focus: "Market Research & GTM", pdfUrl: "https://drive.google.com/file/d/1OFU1w2h-L0OInh6fuYdYr7KaSGRjQvQW/view?usp=drive_link", guidance: null },
 ];
 
+/** Required picks; publication needs this many. */
 export const PROBLEM_STATEMENT_PICKS = 3;
+/** Required plus optional picks (the last two widen discovery). */
+export const PROBLEM_STATEMENT_MAX_PICKS = 5;
 
-/** Selections close at the end of 31 October 2026 (IST); matches private.problem_statement_deadline(). */
-export const PROBLEM_STATEMENT_DEADLINE = new Date("2026-11-01T00:00:00+05:30");
-export const PROBLEM_STATEMENT_DEADLINE_LABEL = "31 October";
+/** Selections close on 1 November 2026, 10:00 IST; matches private.problem_statement_deadline(). */
+export const PROBLEM_STATEMENT_DEADLINE = new Date("2026-11-01T10:00:00+05:30");
+export const PROBLEM_STATEMENT_DEADLINE_LABEL = "1 November, 10 am IST";
+
+/** The programme's final submission form. */
+export const FINAL_SUBMISSION_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSc7V1VUs5bo16i6matUQNfZXi2hmbhZmZpCfSjGUkc_Z25rCA/viewform";
 
 const BY_ID = new Map(PROBLEM_STATEMENTS.map((s) => [s.id, s]));
 
@@ -94,7 +104,7 @@ export function problemStatementsClosed(now: Date = new Date()): boolean {
   return now.getTime() >= PROBLEM_STATEMENT_DEADLINE.getTime();
 }
 
-/** A full ranking can no longer change once the deadline has passed. */
+/** A ranking with the required picks can no longer change once the deadline has passed. */
 export function problemStatementsLocked(picks: readonly string[], now: Date = new Date()): boolean {
   return picks.length >= PROBLEM_STATEMENT_PICKS && problemStatementsClosed(now);
 }

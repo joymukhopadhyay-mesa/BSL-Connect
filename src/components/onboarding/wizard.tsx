@@ -36,7 +36,7 @@ const INTROS: Record<number, string> = {
   4: "Where you've been, and where you'd like to go. These are kept separate.",
   5: "Ten quick questions about how you like to work.",
   6: "Describe the partner who would complement you.",
-  7: "Rank the three company problem statements you'd most like to work on, 1 being your top choice.",
+  7: "Rank the company problem statements you'd most like to work on, 1 being your top choice.",
   8: "One clear photo, so classmates recognise you.",
   9: "Here's how your profile will appear to your cohort.",
 };

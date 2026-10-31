@@ -9,6 +9,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Notice } from "@/components/ui/misc";
 import { Sheet } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/toast";
+import { DeadlineCountdown } from "@/components/shell/countdown";
 import { PROBLEM_STATEMENT_DEADLINE_LABEL, PROBLEM_STATEMENT_PICKS } from "@/lib/profile/problem-statements";
 import { ProblemStatementPicker } from "./picker";
 
@@ -46,8 +47,8 @@ export function ProblemStatementPrompt({ initial, published }: { initial: string
     <>
       <Notice tone="warning" className="mb-6" icon={<ClipboardList className="size-4" aria-hidden />} title="Choose your problem statements to use BSL Connect">
         <p>
-          Rank your top {PROBLEM_STATEMENT_PICKS} company problem statements by {PROBLEM_STATEMENT_DEADLINE_LABEL}. Classmates can filter by them to
-          find partners working on the same brief.
+          Rank your top {PROBLEM_STATEMENT_PICKS} company problem statements (plus up to 2 optional) by {PROBLEM_STATEMENT_DEADLINE_LABEL}. Classmates
+          can filter by them to find partners working on the same brief. <DeadlineCountdown className="font-semibold tabular-nums" />
         </p>
         {!published ? (
           <ButtonLink href="/onboarding" size="sm" className="mt-3" icon={<ArrowRight className="size-4" />}>
@@ -62,7 +63,13 @@ export function ProblemStatementPrompt({ initial, published }: { initial: string
           onClose={() => {}}
           dismissible={false}
           title="Choose your problem statements"
-          description={`Rank ${PROBLEM_STATEMENT_PICKS} problem statements, 1 being your top choice. This is required to keep using BSL Connect. Selections close on ${PROBLEM_STATEMENT_DEADLINE_LABEL}.`}
+          description={
+            <>
+              Rank {PROBLEM_STATEMENT_PICKS} problem statements, 1 being your top choice, and add up to 2 more if you like. This is required to keep
+              using BSL Connect. Selections close on {PROBLEM_STATEMENT_DEADLINE_LABEL}.{" "}
+              <DeadlineCountdown className="font-semibold text-forest-800 tabular-nums" />
+            </>
+          }
           footer={
             <div className="flex items-center justify-between gap-3">
               <form action={signOut}>

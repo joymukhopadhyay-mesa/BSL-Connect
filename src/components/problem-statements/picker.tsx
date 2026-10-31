@@ -6,14 +6,15 @@ import { IconButton } from "@/components/ui/button";
 import { cn } from "@/components/ui/cn";
 import { Select } from "@/components/ui/field";
 import {
-  problemStatement, PROBLEM_STATEMENT_PICKS, PROBLEM_STATEMENTS_BY_SECTOR, type ProblemStatement,
+  problemStatement, PROBLEM_STATEMENT_MAX_PICKS, PROBLEM_STATEMENT_PICKS, PROBLEM_STATEMENTS_BY_SECTOR, type ProblemStatement,
 } from "@/lib/profile/problem-statements";
 import { ProblemStatementPdfLink } from "./pdf-link";
 
-const PRIORITY = ["1st priority", "2nd priority", "3rd priority"] as const;
+const PRIORITY = ["1st priority", "2nd priority", "3rd priority", "4th priority", "5th priority"] as const;
 
 /**
- * Three ranked dropdowns. Picks stay contiguous: a slot opens once the one
+ * Five ranked dropdowns: three required, two optional to widen discovery.
+ * Picks stay contiguous: a slot opens once the one
  * above it is filled, clearing a slot moves the later picks up, and a
  * statement chosen in one slot is unavailable in the others.
  */
@@ -34,7 +35,7 @@ export function ProblemStatementPicker({
     const next = [...value];
     if (statementId) next[i] = statementId;
     else next.splice(i, 1);
-    onChange(next.filter(Boolean).slice(0, PROBLEM_STATEMENT_PICKS));
+    onChange(next.filter(Boolean).slice(0, PROBLEM_STATEMENT_MAX_PICKS));
   }
 
   function moveUp(i: number) {
@@ -46,19 +47,26 @@ export function ProblemStatementPicker({
   return (
     <div className="flex flex-col gap-4">
       <ol className="flex flex-col gap-4">
-        {Array.from({ length: PROBLEM_STATEMENT_PICKS }, (_, i) => {
+        {Array.from({ length: PROBLEM_STATEMENT_MAX_PICKS }, (_, i) => {
           const current = value[i] ?? "";
+          const optional = i >= PROBLEM_STATEMENT_PICKS;
           const statement = current ? problemStatement(current) : undefined;
           const open = i <= value.length;
           const selectId = `${id}-slot-${i}`;
           return (
-            <li key={i} className={cn("rounded-2xl border border-line bg-white/70 p-4", !open && "opacity-60")}>
+            <li key={i} className={cn("rounded-2xl border p-4", optional ? "border-dashed border-line-strong bg-white/40" : "border-line bg-white/70", !open && "opacity-60")}>
               <div className="flex items-center justify-between gap-3">
                 <label htmlFor={selectId} className="flex items-center gap-2.5 text-[0.95rem] font-medium text-ink">
-                  <span className="flex size-7 items-center justify-center rounded-full bg-forest-800 text-xs font-semibold text-ivory-50 tabular-nums">
+                  <span
+                    className={cn(
+                      "flex size-7 items-center justify-center rounded-full text-xs font-semibold tabular-nums",
+                      optional ? "bg-sage-200 text-forest-900" : "bg-forest-800 text-ivory-50",
+                    )}
+                  >
                     {i + 1}
                   </span>
                   {PRIORITY[i]}
+                  {optional ? <span className="text-sm font-normal text-ink-subtle">Optional</span> : null}
                 </label>
                 {i > 0 && current && !disabled ? (
                   <IconButton type="button" variant="ghost" size="sm" label={`Move to ${PRIORITY[i - 1]}`} onClick={() => moveUp(i)}>
@@ -72,9 +80,9 @@ export function ProblemStatementPicker({
                 value={current}
                 disabled={disabled || !open}
                 onChange={(e) => setSlot(i, e.target.value)}
-                aria-invalid={(Boolean(error) && !current) || undefined}
+                aria-invalid={(Boolean(error) && !current && !optional) || undefined}
               >
-                <option value="">{open ? "Choose a problem statement" : `Choose your ${PRIORITY[i - 1]} first`}</option>
+                <option value="">{open ? (optional ? "Add another (optional)" : "Choose a problem statement") : `Choose your ${PRIORITY[i - 1]} first`}</option>
                 {PROBLEM_STATEMENTS_BY_SECTOR.map((g) => (
                   <optgroup key={g.sector} label={g.sector}>
                     {g.statements.map((s) => (

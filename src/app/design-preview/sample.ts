@@ -113,7 +113,7 @@ export const SAMPLE_CANDIDATES: Profile[] = [
     industries_experience: ["E-commerce"],
     industries_interest: ["Consumer technology"],
     partner_skills: ["Strategy"],
-    problem_statements: ["pocketfm", "shopos-1", "zylabs-ai"],
+    problem_statements: ["pocketfm", "shopos-1", "zylabs-ai", "gostops"],
     questionnaire: { answers: { working_style: "balanced", communication: "adaptive", ownership: "mixed", conflict: "find_common_ground", feedback: ["direct_immediate"], execution: "depends" } },
   },
 ];

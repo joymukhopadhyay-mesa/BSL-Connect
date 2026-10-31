@@ -1,5 +1,6 @@
 import { Eye, PencilLine, Settings } from "lucide-react";
 import { notFound } from "next/navigation";
+import { FinalFormCard } from "@/components/problem-statements/final-form-card";
 import { VisibilityToggle } from "@/components/profile/visibility-toggle";
 import { ProfileDetail } from "@/components/profile/profile-detail";
 import { ButtonLink } from "@/components/ui/button";
@@ -35,6 +36,8 @@ export default async function MePage() {
           </>
         }
       />
+
+      <FinalFormCard className="mb-6" />
 
       {viewer.status.suspended ? (
         <Notice tone="warning" className="mb-6" title="Your profile is paused">

@@ -12,7 +12,7 @@ export type Filters = {
   workingStyle: string[];
   /** Problem statement ids. */
   statement: string[];
-  /** "1" to "3": the priority the candidate gave a selected statement. Only applies with a statement selected. */
+  /** "1" to "5": the priority the candidate gave a selected statement. Only applies with a statement selected. */
   statementRank: string[];
 };
 

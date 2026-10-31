@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { INDUSTRIES, MAX_CAREER_OBJECTIVES, MAX_CAREER_OBJECTIVE_LENGTH, PARTNER_QUALITIES, QUESTIONS, QUESTION_KEYS } from "./options";
-import { PROBLEM_STATEMENT_PICKS, PROBLEM_STATEMENTS } from "./problem-statements";
+import { PROBLEM_STATEMENT_MAX_PICKS, PROBLEM_STATEMENT_PICKS, PROBLEM_STATEMENTS } from "./problem-statements";
 
 /**
  * Server-side validation for each onboarding step. Drafts may be saved with
@@ -140,18 +140,18 @@ export const partnerSchema = z.object({
 
 const PROBLEM_STATEMENT_IDS = PROBLEM_STATEMENTS.map((s) => s.id) as [string, ...string[]];
 
-/** Ranked picks, first choice first. Drafts may hold fewer than three. */
+/** Ranked picks, first choice first: three required, two optional. Drafts may hold fewer. */
 export const problemStatementsSchema = z.object({
   problem_statements: z
     .array(z.enum(PROBLEM_STATEMENT_IDS, { message: "Choose from the list." }))
-    .max(PROBLEM_STATEMENT_PICKS)
-    .refine((a) => new Set(a).size === a.length, { message: "Choose three different problem statements." }),
+    .max(PROBLEM_STATEMENT_MAX_PICKS)
+    .refine((a) => new Set(a).size === a.length, { message: "Choose different problem statements for each priority." }),
 });
 
-/** The mandatory selection prompt saves all three at once. */
+/** The mandatory selection prompt saves the required picks (and any optional ones) at once. */
 export const problemStatementPicksSchema = z.object({
-  problem_statements: problemStatementsSchema.shape.problem_statements.refine((a) => a.length === PROBLEM_STATEMENT_PICKS, {
-    message: `Choose ${PROBLEM_STATEMENT_PICKS} problem statements.`,
+  problem_statements: problemStatementsSchema.shape.problem_statements.refine((a) => a.length >= PROBLEM_STATEMENT_PICKS, {
+    message: `Choose at least ${PROBLEM_STATEMENT_PICKS} problem statements.`,
   }),
 });
 

@@ -1,3 +1,4 @@
+import { FinalFormCard } from "@/components/problem-statements/final-form-card";
 import { PageHeader } from "@/components/ui/misc";
 import { ShortlistManager, type ShortlistEntry } from "@/components/shortlist/shortlist-manager";
 import { getMyMatches, getProfiles, otherParticipant } from "@/lib/data/profiles";
@@ -54,6 +55,7 @@ export default async function ShortlistPage() {
         title="Shortlist"
         description="Everyone you're interested in, in your order of preference. Rank them to keep your thinking clear — ranking is private, and it never creates a match on its own."
       />
+      <FinalFormCard className="mb-6" />
       <ShortlistManager initialLiked={liked} passed={passed} />
     </div>
   );

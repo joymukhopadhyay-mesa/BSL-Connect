@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DiscoveryDeck } from "@/components/discover/deck";
 import { OnboardingWizard } from "@/components/onboarding/wizard";
 import { CompatibilityPanel } from "@/components/matching/compatibility-panel";
+import { FinalFormCard } from "@/components/problem-statements/final-form-card";
 import { ProblemStatementPrompt } from "@/components/problem-statements/selection-prompt";
 import { ProfileDetail } from "@/components/profile/profile-detail";
 import { DeadlineTicker } from "@/components/shell/deadline-ticker";
@@ -47,6 +48,7 @@ export default async function DesignPreview({ searchParams }: PageProps<"/design
           <StudentNav openMatches={1} partnered={false} />
           <main className="mx-auto max-w-6xl px-4 pt-5 pb-nav sm:px-6 md:pt-8 md:pb-[calc(4rem+var(--ticker-height))]">
             {view === "selection" ? <ProblemStatementPrompt initial={[]} published /> : null}
+            {view === "profile" ? <FinalFormCard className="mb-6" /> : null}
             {view === "profile" ? (
               <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
                 <div className="surface rounded-[var(--radius-card)] p-5 shadow-soft sm:p-8">

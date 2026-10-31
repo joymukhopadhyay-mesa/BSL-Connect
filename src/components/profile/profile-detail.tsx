@@ -2,9 +2,10 @@ import { Briefcase, Compass, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 import { ProblemStatementPdfLink } from "@/components/problem-statements/pdf-link";
 import { Tag } from "@/components/ui/chips";
+import { cn } from "@/components/ui/cn";
 import { ProfilePhoto } from "@/components/ui/misc";
 import { careerObjectiveLabels, optionLabel, QUESTIONS } from "@/lib/profile/options";
-import { problemStatement } from "@/lib/profile/problem-statements";
+import { problemStatement, PROBLEM_STATEMENT_PICKS } from "@/lib/profile/problem-statements";
 import type { Profile } from "@/lib/profile/types";
 
 /**
@@ -67,13 +68,19 @@ export function ProfileDetail({
               if (!s) return null;
               return (
                 <li key={id} className="flex gap-3 rounded-2xl border border-line bg-white/60 p-3.5">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-forest-800 text-xs font-semibold text-ivory-50 tabular-nums">
+                  <span
+                    className={cn(
+                      "flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums",
+                      i < PROBLEM_STATEMENT_PICKS ? "bg-forest-800 text-ivory-50" : "bg-sage-200 text-forest-900",
+                    )}
+                  >
                     {i + 1}
                   </span>
                   <div className="flex min-w-0 flex-col gap-1">
                     <p className="text-[0.98rem] font-medium leading-snug text-ink">
                       {s.name}
                       {s.brief ? <span className="font-normal text-ink-muted"> · {s.brief}</span> : null}
+                      {i >= PROBLEM_STATEMENT_PICKS ? <span className="ml-2 text-sm font-normal text-ink-subtle">Optional</span> : null}
                     </p>
                     <p className="text-sm text-ink-muted">{[s.sector, s.model, s.focus].join(" · ")}</p>
                     <ProblemStatementPdfLink statement={s} className="text-sm" />

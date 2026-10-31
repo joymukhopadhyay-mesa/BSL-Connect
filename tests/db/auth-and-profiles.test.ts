@@ -241,7 +241,8 @@ describe("problem statements", () => {
       .toContain("PROFILE_INCOMPLETE");
     expect(await errorCode(setPicks(id, ["pocketfm", "pocketfm", "sortment"]))).toContain("INVALID_PROBLEM_STATEMENT");
     expect(await errorCode(setPicks(id, ["pocketfm", "made-up", "sortment"]))).toContain("INVALID_PROBLEM_STATEMENT");
-    expect(await errorCode(setPicks(id, ["pocketfm", "sortment", "even", "apna"]))).toMatch(/check constraint/);
+    expect(await errorCode(setPicks(id, ["pocketfm", "sortment", "even", "apna", "gain", "emergent"]))).toMatch(/check constraint/);
+    await setPicks(id, ["pocketfm", "sortment", "even", "apna", "gostops"]);
     await setPicks(id, ["even", "pocketfm", "sortment"]);
     await asUser(db, id, () => db.query("update public.profiles set status = 'published' where id = $1", [id]));
     expect((await ranked(id)).rows[0]).toMatchObject({ problem_statements: ["even", "pocketfm", "sortment"], status: "published" });
@@ -268,12 +269,14 @@ describe("problem statements", () => {
     try {
       expect(await errorCode(setPicks(full, ["apna", "pocketfm", "sortment"]))).toContain("PROBLEM_STATEMENTS_LOCKED");
       await setPicks(late, ["apna", "pocketfm", "sortment"]);
+      // Adding an optional pick also counts as a change.
+      expect(await errorCode(setPicks(late, ["apna", "pocketfm", "sortment", "gain"]))).toContain("PROBLEM_STATEMENTS_LOCKED");
       expect(await errorCode(setPicks(late, ["pocketfm", "apna", "sortment"]))).toContain("PROBLEM_STATEMENTS_LOCKED");
       expect(await errorCode(setPicks(late, []))).toContain("PROBLEM_STATEMENTS_LOCKED");
       // Unrelated edits still work.
       await asUser(db, full, () => db.query("update public.profiles set intro = 'Still editable' where id = $1", [full]));
     } finally {
-      await db.exec("create or replace function private.problem_statement_deadline() returns timestamptz language sql stable set search_path = '' as $$ select timestamptz '2026-11-01 00:00:00+05:30' $$");
+      await db.exec("create or replace function private.problem_statement_deadline() returns timestamptz language sql stable set search_path = '' as $$ select timestamptz '2026-11-01 10:00:00+05:30' $$");
     }
   });
 

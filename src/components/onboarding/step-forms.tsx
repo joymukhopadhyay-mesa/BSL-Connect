@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CoachAssist } from "@/components/ai/coach-assist";
 import { VoiceInput } from "@/components/ai/voice-input";
 import { ProblemStatementPicker } from "@/components/problem-statements/picker";
+import { DeadlineCountdown } from "@/components/shell/countdown";
 import { Chip, TagPicker } from "@/components/ui/chips";
 import { ChoiceGroup } from "@/components/ui/choice";
 import { Field, Input, Textarea } from "@/components/ui/field";
@@ -323,7 +324,7 @@ export function QuestionnaireStep({ draft, set, errors, aiAvailable }: StepProps
 }
 
 export function ProblemStatementsStep({ draft, set, errors }: StepProps) {
-  // Locked once a full ranking was saved before the deadline passed.
+  // Locked once the required picks were saved before the deadline passed.
   const [locked] = useState(() => problemStatementsLocked(draft.problem_statements));
   return (
     <div className="flex flex-col gap-5">
@@ -333,8 +334,9 @@ export function ProblemStatementsStep({ draft, set, errors }: StepProps) {
         </Notice>
       ) : (
         <p className="text-sm leading-relaxed text-ink-muted">
-          Open each PDF before you rank. Your choices appear on your profile, and classmates can filter by them. Choose by{" "}
-          {PROBLEM_STATEMENT_DEADLINE_LABEL}.
+          Open each PDF before you rank. The first three are required; add two more to widen your discovery. Your choices appear on your profile,
+          and classmates can filter by them. Choose by {PROBLEM_STATEMENT_DEADLINE_LABEL}.{" "}
+          <DeadlineCountdown className="font-semibold text-forest-800 tabular-nums" />
         </p>
       )}
       <ProblemStatementPicker

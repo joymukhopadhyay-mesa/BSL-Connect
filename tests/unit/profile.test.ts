@@ -4,6 +4,7 @@ import { EXPORT_COLUMNS } from "@/lib/export";
 import { validatePhoto, MAX_PHOTO_BYTES } from "@/lib/photo";
 import { completionPercent, missingFields } from "@/lib/profile/completion";
 import { problemStatementsLocked } from "@/lib/profile/problem-statements";
+import { formatTimeLeft } from "@/components/shell/countdown";
 import {
   basicsSchema, industriesSchema, problemStatementPicksSchema, problemStatementsSchema, publishSchema, questionnaireSchema, strengthsSchema,
 } from "@/lib/profile/schema";
@@ -107,23 +108,32 @@ describe("profile completeness", () => {
 });
 
 describe("problem statements", () => {
-  it("drafts accept up to three distinct catalogue ids, in order", () => {
+  it("drafts accept up to five distinct catalogue ids, in order", () => {
     expect(problemStatementsSchema.parse({ problem_statements: ["kuku-2", "pocketfm"] }).problem_statements).toEqual(["kuku-2", "pocketfm"]);
     expect(problemStatementsSchema.safeParse({ problem_statements: [] }).success).toBe(true);
     expect(problemStatementsSchema.safeParse({ problem_statements: ["not-a-company"] }).success).toBe(false);
     expect(problemStatementsSchema.safeParse({ problem_statements: ["pocketfm", "pocketfm"] }).success).toBe(false);
-    expect(problemStatementsSchema.safeParse({ problem_statements: ["pocketfm", "sortment", "even", "apna"] }).success).toBe(false);
+    expect(problemStatementsSchema.safeParse({ problem_statements: ["pocketfm", "sortment", "even", "apna", "gain"] }).success).toBe(true);
+    expect(problemStatementsSchema.safeParse({ problem_statements: ["pocketfm", "sortment", "even", "apna", "gain", "emergent"] }).success).toBe(false);
   });
 
-  it("the mandatory prompt needs exactly three", () => {
+  it("the mandatory prompt needs three, and accepts two optional", () => {
     expect(problemStatementPicksSchema.safeParse({ problem_statements: ["pocketfm", "sortment"] }).success).toBe(false);
     expect(problemStatementPicksSchema.safeParse({ problem_statements: ["pocketfm", "sortment", "even"] }).success).toBe(true);
+    expect(problemStatementPicksSchema.safeParse({ problem_statements: ["pocketfm", "sortment", "even", "gostops", "gain"] }).success).toBe(true);
   });
 
-  it("a full ranking locks at the end of 31 October IST", () => {
+  it("formats the countdown", () => {
+    expect(formatTimeLeft((9 * 3600 + 12 * 60 + 5) * 1000)).toBe("9h 12m 05s");
+    expect(formatTimeLeft((26 * 3600 + 5 * 60) * 1000)).toBe("1d 2h 05m");
+    expect(formatTimeLeft(-5000)).toBe("0h 00m 00s");
+  });
+
+  it("a ranking with the required picks locks at 10 am IST on 1 November", () => {
     const full = ["pocketfm", "sortment", "even"];
-    expect(problemStatementsLocked(full, new Date("2026-10-31T23:59:00+05:30"))).toBe(false);
-    expect(problemStatementsLocked(full, new Date("2026-11-01T00:00:00+05:30"))).toBe(true);
+    expect(problemStatementsLocked(full, new Date("2026-11-01T09:59:00+05:30"))).toBe(false);
+    expect(problemStatementsLocked(full, new Date("2026-11-01T10:00:00+05:30"))).toBe(true);
+    expect(problemStatementsLocked([...full, "gain"], new Date("2026-11-01T10:00:00+05:30"))).toBe(true);
     expect(problemStatementsLocked(["pocketfm"], new Date("2026-11-05T00:00:00+05:30"))).toBe(false);
   });
 

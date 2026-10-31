@@ -33,8 +33,8 @@ const MESSAGES: Record<string, string> = {
   DELETION_NOT_REQUESTED: "The student hasn't requested account removal.",
   PHOTO_INVALID: "Use a JPEG, PNG or WebP image under 4 MB.",
   DELETION_REQUESTED: "You've requested account removal, so your profile can't be published.",
-  INVALID_PROBLEM_STATEMENT: "Choose three different problem statements from the list.",
-  PROBLEM_STATEMENTS_LOCKED: "Problem statement selections closed on 31 October, so your ranking can no longer change.",
+  INVALID_PROBLEM_STATEMENT: "Choose different problem statements from the list for each priority.",
+  PROBLEM_STATEMENTS_LOCKED: "Problem statement selections closed on 1 November at 10 am IST, so your ranking can no longer change.",
   EMAIL_DOMAIN_NOT_ALLOWED: "BSL Connect accepts @pg27.mesaschool.co email addresses only.",
 };
 

@@ -135,7 +135,7 @@ describe("exports", () => {
     const columns = res.fields.map((f) => f.name);
     expect(columns).toEqual([
       "full_name", "email", "cohort", "role_title", "profile_status", "career_objectives",
-      "problem_statement_1", "problem_statement_2", "problem_statement_3", "strengths",
+      "problem_statement_1", "problem_statement_2", "problem_statement_3", "problem_statement_4", "problem_statement_5", "strengths",
       "industries_experience", "industries_interest", "partnership_status", "partner_name", "partner_email", "finalised_at",
     ]);
     for (const forbidden of ["password", "token", "encrypted_password", "likes", "reason", "questionnaire", "suspended"]) {

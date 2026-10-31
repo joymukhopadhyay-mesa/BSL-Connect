@@ -38,7 +38,7 @@ export function FiltersSheet({
       skills: uniqueSorted(candidates.flatMap((c) => c.strengths)),
       objective: uniqueSorted(candidates.flatMap((c) => c.career_objectives)),
       statement: PROBLEM_STATEMENTS.map((s) => s.id).filter((id) => candidates.some((c) => c.problem_statements.includes(id))),
-      statementRank: value.statement.length ? ["1", "2", "3"] : [],
+      statementRank: value.statement.length ? ["1", "2", "3", "4", "5"] : [],
       workingStyle: uniqueSorted(
         candidates.map((c) => (typeof c.questionnaire?.answers?.working_style === "string" ? c.questionnaire.answers.working_style : "")).filter(Boolean),
       ),
@@ -49,7 +49,7 @@ export function FiltersSheet({
 
   const groups: Array<{ key: keyof Filters; title: string; label: (v: string) => string; description?: string }> = [
     { key: "statement", title: "Problem statement", label: (v) => (myStatements.includes(v) ? `${problemStatementName(v)} (your #${myStatements.indexOf(v) + 1})` : problemStatementName(v)) },
-    { key: "statementRank", title: "Their priority for it", label: (v) => ["1st choice", "2nd choice", "3rd choice"][Number(v) - 1]!, description: "Any priority if none selected." },
+    { key: "statementRank", title: "Their priority for it", label: (v) => ["1st choice", "2nd choice", "3rd choice", "4th (optional)", "5th (optional)"][Number(v) - 1]!, description: "Any priority if none selected." },
     { key: "interest", title: "Wants to explore", label: (v) => v },
     { key: "experience", title: "Has worked in", label: (v) => v },
     { key: "skills", title: "Strengths", label: (v) => v },

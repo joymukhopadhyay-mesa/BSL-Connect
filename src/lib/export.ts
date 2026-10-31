@@ -9,6 +9,8 @@ export const EXPORT_COLUMNS = [
   { key: "problem_statement_1", header: "Problem statement 1st priority" },
   { key: "problem_statement_2", header: "Problem statement 2nd priority" },
   { key: "problem_statement_3", header: "Problem statement 3rd priority" },
+  { key: "problem_statement_4", header: "Problem statement 4th priority (optional)" },
+  { key: "problem_statement_5", header: "Problem statement 5th priority (optional)" },
   { key: "strengths", header: "Strengths" },
   { key: "industries_experience", header: "Industries worked in" },
   { key: "industries_interest", header: "Industries of interest" },
